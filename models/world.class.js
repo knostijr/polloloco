@@ -13,7 +13,7 @@ class World {
     ];
 
     backgroundObjects = [
-        new BackgroundObject('img/5_background/layers/1_first_layer/1.png', 0, 0)
+        new BackgroundObject('img/5_background/layers/1_first_layer/1.png', 0)
     ];
 
     canvas;
@@ -40,9 +40,11 @@ class World {
 
             // added as reference
         */
-        this.addObjectsToMap(this.backgroundObjects);
+       this.addObjectsToMap(this.backgroundObjects);
+       this.addToMap(this.character);
         this.addObjectsToMap(this.clouds);
         this.addObjectsToMap(this.enemies);
+
 
         // self = this; innerhalb der funktion wird nicht this. nicht erkannt
         // draw() wird immer wieder aufgerufen
@@ -59,7 +61,7 @@ class World {
     }
 
     addToMap(mo) {
-        this.ctx.drawImage(mo.img, mo.x, mo.y, mo.height, mo.width);
+        this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
 
     }
 

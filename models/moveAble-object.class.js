@@ -2,8 +2,8 @@ class MoveAbleObject {
     x = 120;
     y = 200;
     img;
-    height = 100;
-    width = 150;
+    height = 150;
+    width = 100;
 
 
     loadImage(path) {
