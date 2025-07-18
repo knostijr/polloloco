@@ -1,10 +1,19 @@
 class World {
 
     character = new Character();
+
     enemies = [
         new Chicken(),
         new Chicken(),
         new Chicken(),
+    ];
+
+    clouds = [
+        new Cloud()
+    ];
+
+    backgroundObjects = [
+        new BackgroundObject('img/5_background/layers/1_first_layer/1.png', 0, 0)
     ];
 
     canvas;
@@ -21,10 +30,19 @@ class World {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.ctx.drawImage(this.character.img, this.character.x, this.character.y, this.character.height, this.character.width);
+        this.addToMap(this.character);
+        /*
         this.enemies.forEach(enemy => {
-            this.ctx.drawImage(enemy.img, enemy.x, enemy.y, enemy.height, enemy.width);
+            this.addToMap(enemy);
         });
+        this.clouds.forEach(cloud => {
+            this.ctx.drawImage(enemy.img, enemy.x, enemy.y, enemy.width, enemy.height)})
+
+            // added as reference
+        */
+        this.addObjectsToMap(this.backgroundObjects);
+        this.addObjectsToMap(this.clouds);
+        this.addObjectsToMap(this.enemies);
 
         // self = this; innerhalb der funktion wird nicht this. nicht erkannt
         // draw() wird immer wieder aufgerufen
@@ -32,6 +50,17 @@ class World {
         requestAnimationFrame(function () {
             self.draw();
         });
+    }
+
+    addObjectsToMap(objects) {
+        objects.forEach(o => {
+            this.addToMap(o);
+        });
+    }
+
+    addToMap(mo) {
+        this.ctx.drawImage(mo.img, mo.x, mo.y, mo.height, mo.width);
+
     }
 
 }
