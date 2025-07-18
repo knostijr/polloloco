@@ -1,6 +1,6 @@
 class MoveAbleObject {
     x = 120;
-    y = 200;
+    y = 220;
     img;
     height = 150;
     width = 100;
