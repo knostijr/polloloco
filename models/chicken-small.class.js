@@ -1,0 +1,5 @@
+class ChickenSmall extends MoveAbleObject {
+
+    
+
+}
