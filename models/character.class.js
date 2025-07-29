@@ -55,7 +55,7 @@ class Character extends MoveAbleObject {
     ];
 
     world;
-    // Array mit alles sounds hinzufügen
+    // Array mit allen sounds hinzufügen
     walking_sound = new Audio('audio/test.mp3');
 
     constructor() {
@@ -90,13 +90,14 @@ class Character extends MoveAbleObject {
         }, 1000 / 60);
 
         setInterval(() => {
-
-            if (this.isAboveGround()) {
-                //jump animation
+            if(this.isDead()) {
+                this.playAnimation(this.IMAGES_DYING);
+            } else if(this.isHurt()) {
+                this.playAnimation(this.IMAGES_HURTING);
+            } else if (this.isAboveGround()) {
                 this.playAnimation(this.IMAGES_JUMPING);
             } else {
                 if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-                    //walk animation
                     this.playAnimation(this.IMAGES_WALKING);
                 }
 
