@@ -3,7 +3,6 @@ class MoveAbleObject extends DrawableObject {
     otherDirection = false;
     speedY = 0;
     acceleration = 2;
-
     energy = 100;
     lastHit = 0;
 
@@ -19,7 +18,12 @@ class MoveAbleObject extends DrawableObject {
     }
 
     isAboveGround() {
-        return this.y < 165;
+        if (this instanceof ThrowableObject) {
+            return true;
+        } else {
+            return this.y < 165;
+        }
+
     }
 
 
