@@ -1,4 +1,4 @@
-class StatusBar extends DrawableObject {
+class StatusBar extends DrawableObject { // zwei weiter statusbar, dafür neue objekte/klassen erstellen
     IMAGES_LIFEBAR = [
         'img/7_statusbars/1_statusbar/2_statusbar_health/orange/100.png',
         'img/7_statusbars/1_statusbar/2_statusbar_health/orange/80.png',
