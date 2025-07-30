@@ -3,14 +3,8 @@ class MoveAbleObject extends DrawableObject {
     otherDirection = false;
     speedY = 0;
     acceleration = 2;
-    offset = {
-        top: 10,
-        bottom: 0,
-        left: 10,
-        right: 10
-    };
-    energy = 100;
 
+    energy = 100;
     lastHit = 0;
 
 
@@ -29,47 +23,6 @@ class MoveAbleObject extends DrawableObject {
     }
 
 
-    /* drawFrame(ctx) {
-         // wird nur ausgeführt wenn eine Instanz von Character oder Chicken da ist
-         if (this instanceof Character || this instanceof Chicken || this instanceof ChickenSmall) {
-             ctx.beginPath();
-             ctx.lineWidth = '2';
-             ctx.strokeStyle = 'blue';
-             ctx.rect(this.x, this.y, this.width, this.height);
-             ctx.stroke();
-         }
-     }*/
-    drawFrame(ctx) {
-        // wird nur ausgeführt wenn eine Instanz von Character oder Chicken da ist
-        if (this instanceof Character || this instanceof Chicken || this instanceof ChickenSmall) {
-            ctx.beginPath();
-            ctx.lineWidth = '2';
-            ctx.strokeStyle = 'red';
-            ctx.rect(
-                this.x + this.offset.left,
-                this.y + this.offset.top,
-                this.width - this.offset.left - this.offset.right,
-                this.height - this.offset.top - this.offset.bottom
-            );
-            ctx.stroke();
-        }
-    }
-    // 
-    /*drawRedFrame(ctx) {
-        // wird nur ausgeführt wenn eine Instanz von Character oder Chicken da ist
-        if (this instanceof Character || this instanceof Chicken || this instanceof ChickenSmall) {
-            ctx.beginPath();
-            ctx.lineWidth = '2';
-            ctx.strokeStyle = 'red';
-            ctx.rect(
-                this.x + this.offset.left,
-                this.y + this.offset.top,
-                this.width - this.offset.left - this.offset.right,
-                this.height - this.offset.top - this.offset.bottom
-            );
-            ctx.stroke();
-        }
-    }*/
 
     // character.isColliding(chicken);
     isColliding(mo) {
@@ -91,9 +44,9 @@ class MoveAbleObject extends DrawableObject {
     }
 
     isHurt() {
-        let timepassed = new Date().getTime - this.lastHit; // difference in ms
+        let timepassed = new Date().getTime() - this.lastHit; // difference in ms
         timepassed = timepassed / 1000; // difference in s
-        console.log(timepassed);
+
         return timepassed < 1.5;
     }
 
