@@ -12,6 +12,8 @@ class World {
     statusBarEndboss = new StatusBarEndboss();
     throwableObjects = [];
     collectables = [];
+    gameOverImage = new Image();
+    gameIsOver = false;
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -21,6 +23,7 @@ class World {
         this.setWorld();
         this.run();
         this.collectables = this.level.collectables;
+        this.gameOverImage.src = 'img/You won, you lost/gameover.png';
     }
 
     setWorld() {
@@ -66,6 +69,27 @@ class World {
             }
         });
 
+        if (this.character.isDead() && !this.gameIsOver) {
+            this.endGame();
+        }
+
+    }
+
+    endGame() {
+        this.gameIsOver = true;
+
+        // Stoppe alle Intervalle (z. B. `setInterval`s) – optional
+        clearInterval(this.character.walkInterval);
+        clearInterval(this.throwBottleInterval); // falls du einen separaten hast
+
+        // Warte kurz und zeige dann das Game Over Bild
+        setTimeout(() => {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.drawImage(this.gameOverImage, 0, 0, this.canvas.width, this.canvas.height);
+
+            // Button einblenden
+            document.getElementById('restart-btn').style.display = 'block';
+        }, 500);
     }
 
 
@@ -96,6 +120,13 @@ class World {
         requestAnimationFrame(function () {
             self.draw();
         });
+        if (this.gameIsOver) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.drawImage(this.gameOverImage, 0, 0, this.canvas.width, this.canvas.height);
+            return;
+        }
+
+
     }
 
     addObjectsToMap(objects) {

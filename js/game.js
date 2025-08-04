@@ -70,3 +70,13 @@ function startGame() {
   let canvas = document.getElementById('canvas');
   world = new World(canvas, keyboard);
 }
+
+function restartGame() {
+    location.reload(); // lädt die Seite neu → zurück zum Startscreen
+}
+
+window.addEventListener('keydown', (e) => {
+    if (world?.gameIsOver && (e.key === 'r' || e.key === 'Enter')) {
+        restartGame();
+    }
+});
