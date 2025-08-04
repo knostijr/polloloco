@@ -7,3 +7,28 @@ body {
 canvas {
     background-color: black;
 }
+
+#start-screen {
+  position: relative;
+  text-align: center;
+  margin-top: 20px;
+}
+
+#startscreen-image {
+  width: 720px;
+  height: 400px;
+  display: block;
+  margin: 0 auto;
+  border: 2px solid black;
+}
+
+#start-screen button {
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  padding: 10px 30px;
+  cursor: pointer;
+  z-index: 2;
+}

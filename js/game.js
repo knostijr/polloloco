@@ -62,3 +62,11 @@ window.addEventListener('keyup', (event) => {
         keyboard.D = false;
     }
 });
+
+function startGame() {
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('canvas').style.display = 'block';
+
+  let canvas = document.getElementById('canvas');
+  world = new World(canvas, keyboard);
+}

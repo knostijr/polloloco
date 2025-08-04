@@ -7,8 +7,11 @@ class World {
     camera_x = 0;
     statusBar = new StatusBar();
     statusBarBottle = new StatusBarBottle();
+    bottles = 5;
     statusBarCoin = new StatusBarCoin();
+    statusBarEndboss = new StatusBarEndboss();
     throwableObjects = [];
+    collectables = [];
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -17,6 +20,7 @@ class World {
         this.draw();
         this.setWorld();
         this.run();
+        this.collectables = this.level.collectables;
     }
 
     setWorld() {
@@ -32,9 +36,14 @@ class World {
     }
 
     checkThrowObjects() {
-        if(this.keyboard.D) {
+        if (this.keyboard.D && this.bottles > 0) {
             let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
             this.throwableObjects.push(bottle);
+            this.bottles--;
+
+            // Prozentsatz berechnen (jede Flasche = 20%)
+            let percentage = (this.bottles / 5) * 100;
+            this.statusBarBottle.setPercentage(percentage);
         }
     }
 
@@ -45,6 +54,18 @@ class World {
                 this.statusBar.setPercentage(this.character.energy);
             }
         });
+
+        this.collectables.forEach((collectable, index) => {
+            if (this.character.isColliding(collectable)) {
+                if (this.bottles < 5) {
+                    this.bottles++;
+                    let percentage = (this.bottles / 5) * 100;
+                    this.statusBarBottle.setPercentage(percentage);
+                }
+                this.collectables.splice(index, 1); // Entferne die eingesammelte Flasche
+            }
+        });
+
     }
 
 
@@ -58,12 +79,14 @@ class World {
         this.addToMap(this.statusBarCoin);
         this.addToMap(this.statusBarBottle);
         this.addToMap(this.statusBar);
+        this.addToMap(this.statusBarEndboss);
         this.ctx.translate(this.camera_x, 0);
 
         this.addToMap(this.character);
         this.addObjectsToMap(this.level.clouds);
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.throwableObjects);
+        this.addObjectsToMap(this.collectables);
 
         this.ctx.translate(-this.camera_x, 0);
 
