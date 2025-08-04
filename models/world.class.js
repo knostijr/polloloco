@@ -12,6 +12,8 @@ class World {
     statusBarEndboss = new StatusBarEndboss();
     throwableObjects = [];
     collectables = [];
+    collectableCoin = [];
+    coinsCollected = 0;
     gameOverImage = new Image();
     gameIsOver = false;
 
@@ -23,6 +25,7 @@ class World {
         this.setWorld();
         this.run();
         this.collectables = this.level.collectables;
+        this.collectableCoin = this.level.collectableCoin;
         this.gameOverImage.src = 'img/You won, you lost/gameover.png';
     }
 
@@ -73,6 +76,15 @@ class World {
             this.endGame();
         }
 
+        this.collectableCoin.forEach((coin, index) => {
+            if (this.character.isColliding(coin)) {
+                this.collectableCoin.splice(index, 1); // coin entfernen
+                this.coinsCollected++;
+                let percentage = Math.min(this.coinsCollected * 20, 100); // z. B. 5 Coins = 100%
+                this.statusBarCoin.setPercentage(percentage);
+            }
+        });
+
     }
 
     endGame() {
@@ -111,6 +123,7 @@ class World {
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.throwableObjects);
         this.addObjectsToMap(this.collectables);
+        this.addObjectsToMap(this.collectableCoin);
 
         this.ctx.translate(-this.camera_x, 0);
 

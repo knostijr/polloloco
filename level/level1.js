@@ -45,5 +45,10 @@ const level1 = new Level(
         new CollectableObject(1600, 250),
         new CollectableObject(1800, 250),
         new CollectableObject(2000, 250)
+    ],
+    [
+        new CollectableObjectCoin(600, 200),
+        new CollectableObjectCoin(900, 150),
+        new CollectableObjectCoin(1200, 170)
     ]
 );
