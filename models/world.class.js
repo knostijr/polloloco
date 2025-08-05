@@ -17,6 +17,7 @@ class World {
     gameOverImage = new Image();
     gameIsOver = false;
     youWon = false;
+    spawningIntervalId;
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -28,6 +29,24 @@ class World {
         this.collectables = this.level.collectables;
         this.collectableCoin = this.level.collectableCoin;
         this.gameOverImage.src = 'img/You won, you lost/gameover.png';
+        this.startSpawningChickens();
+    }
+
+    startSpawningChickens() {
+        this.spawningIntervalId = setInterval(() => {
+
+            if (this.character.x < this.level.level_end_x - 500) {
+           
+                let newChicken = new Chicken();
+                let newSmallChicken = new ChickenSmall();
+    
+                newChicken.x = this.character.x + 500 + Math.random() * 500;
+                newSmallChicken.x = this.character.x + 500 + Math.random() * 500;
+
+                this.level.enemies.push(newSmallChicken);
+                this.level.enemies.push(newChicken);
+            }
+        }, 5000); // Spawn alle 5 Sekunden ein neues Huhn
     }
 
     run() {
@@ -61,11 +80,17 @@ class World {
     checkEnemyCollisions() {
         this.level.enemies.forEach((enemy, index) => {
             // Prüfe zuerst die präzise Draufspringen-Kollision
-            if (this.character.isStompingOn(enemy)) {
-                // Wenn die Kollision von oben erfolgt, den Gegner eliminieren
-                this.level.enemies.splice(index, 1);
+            // Die Bedingung !enemy.isDead verhindert, dass man auf einen bereits "toten" Gegner springt
+            if (this.character.isStompingOn(enemy) && !enemy.isDead) {
+                // Wenn die Kollision von oben erfolgt, den Gegner als tot markieren
+                enemy.isDead = true;
                 this.character.jump(); // Optionaler Rücksprung für den Charakter
-            } else if (this.character.isColliding(enemy)) {
+
+                // Nach einer kurzen Verzögerung (für die Animation) den Gegner entfernen
+                setTimeout(() => {
+                    this.level.enemies.splice(index, 1);
+                }, 500); // 500ms Verzögerung für die Todesanimation
+            } else if (this.character.isColliding(enemy) && !enemy.isDead) {
                 // Wenn es eine Kollision von der Seite ist, nimmt der Charakter Schaden
                 this.character.hit();
                 this.statusBar.setPercentage(this.character.energy);

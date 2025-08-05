@@ -6,6 +6,7 @@ class Endboss extends MoveAbleObject {
     isHurt = false;
     isDeadFlag = false;
     isDeadAnimationDone = false;
+    animationInterval;
     speed = 2;
 
     offset = {
@@ -86,24 +87,49 @@ class Endboss extends MoveAbleObject {
     animate() {
         this.animationInterval = setInterval(() => {
             if (this.isDead() && !this.isDeadAnimationDone) {
-                this.playAnimation(this.IMAGES_DEAD);
-                if (this.currentImage >= this.IMAGES_DEAD.length - 1) { // Prüfen, ob die Animation am Ende ist
-                    this.isDeadAnimationDone = true;
-                    clearInterval(this.animationInterval); // Stop animation
-                }
+                this.handleDeathAnimation();
             } else if (this.isHurt) {
-                this.playAnimation(this.IMAGES_HURT);
-                this.isHurt = false;
-            } else if (this.isCharacterInAttackRange()) {
-                this.playAnimation(this.IMAGES_ATTACK);
-            } else if (this.isCharacterInWalkRange()) {
-                this.playAnimation(this.IMAGES_WALKING);
-                this.moveTowardsCharacter();
+                this.handleHurt();
             } else {
-                this.playAnimation(this.IMAGES_ALERT);
+                this.handleActiveState();
             }
         }, 150);
     }
+
+    /**
+     * Verwaltet die Todesanimation.
+     * Stoppt die Animation, wenn sie abgeschlossen ist.
+     */
+    handleDeathAnimation() {
+        this.playAnimation(this.IMAGES_DEAD);
+        if (this.currentImage >= this.IMAGES_DEAD.length - 1) {
+            this.isDeadAnimationDone = true;
+            clearInterval(this.animationInterval); // Stoppe die Animation nach dem Tod
+        }
+    }
+
+    /**
+     * Verwaltet den Zustand bei Schaden.
+     */
+    handleHurt() {
+        this.playAnimation(this.IMAGES_HURT);
+        this.isHurt = false; // Setzt den Hurt-Status zurück
+    }
+
+    /**
+     * Verwaltet die aktiven Zustände (Attacke, Laufen, Alert).
+     */
+    handleActiveState() {
+        if (this.isCharacterInAttackRange()) {
+            this.playAnimation(this.IMAGES_ATTACK);
+        } else if (this.isCharacterInWalkRange()) {
+            this.playAnimation(this.IMAGES_WALKING);
+            this.moveTowardsCharacter();
+        } else {
+            this.playAnimation(this.IMAGES_ALERT);
+        }
+    }
+
 
     /**
      * Bewegung in Richtung Charakter, wenn in Walk-Reichweite.

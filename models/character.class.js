@@ -196,26 +196,8 @@ class Character extends MoveAbleObject {
         this.speedY = 30;
     }
 
-    // Neue, verbesserte Methode, um auf einen Gegner zu springen
-    /**
-     * Prüft, ob der Charakter von oben auf einen Gegner springt.
-     * @param {MoveableObject} enemy - Das Gegner-Objekt.
-     * @returns {boolean}
-     */
     isStompingOn(enemy) {
-        // Die Unterseite des Charakters muss auf der Oberseite des Gegners sein
-        const characterBottom = this.y + this.height;
-        const enemyTop = enemy.y;
-
-        // Prüfe, ob die horizontale Position überlappt
-        const horizontalOverlap = (this.x + this.width > enemy.x) && (this.x < enemy.x + enemy.width);
-        
-        // Füge einen kleinen Toleranzbereich hinzu, damit die Kollision nicht verpasst wird
-        const verticalOverlap = characterBottom > enemyTop && characterBottom < enemyTop + 20;
-
-        // Die Bedingung, dass der Charakter fällt, ist entscheidend
-        const isFalling = this.speedY > 0;
-
-        return horizontalOverlap && verticalOverlap && isFalling;
+        // Die Kollision von oben ist präzise, wenn sich der Charakter im Fall befindet und seine Unterkante über der Oberkante des Gegners liegt.
+        return this.isColliding(enemy) && this.speedY > 0 && (this.y + this.height - 20) < (enemy.y + enemy.height - 20);
     }
 }

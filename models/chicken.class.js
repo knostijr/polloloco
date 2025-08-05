@@ -2,6 +2,8 @@ class Chicken extends MoveAbleObject {
     y = 300;
     height = 70;
     width = 50;
+    isDead = false;
+
     IMAGES_WALKING = [
         'img/3_enemies_chicken/chicken_normal/1_walk/1_w.png',
         'img/3_enemies_chicken/chicken_normal/1_walk/2_w.png',
@@ -11,8 +13,6 @@ class Chicken extends MoveAbleObject {
     IMAGES_DEAD = [
         'img/3_enemies_chicken/chicken_normal/2_dead/dead.png'
     ];
-
-
 
     constructor() {
         super().loadImage('img/3_enemies_chicken/chicken_normal/1_walk/1_w.png');
@@ -27,16 +27,35 @@ class Chicken extends MoveAbleObject {
 
 
     animate() {
-        setInterval(() => {
-            this.moveLeft();
-        }, 1000 / 60); // t 
-        
-        setInterval(() => {
-            this.playAnimation(this.IMAGES_WALKING);
-        }, 200);
-
-
+        this.animateMovement();
+        this.animateStatus();
     }
 
+    /**
+     * Kümmert sich um die Bewegung des Gegners.
+     * Stoppt, wenn der Gegner tot ist.
+     */
+    animateMovement() {
+        setInterval(() => {
+            if (!this.isDead) {
+                this.moveLeft();
+            }
+        }, 1000 / 60);
+    }
 
-}   
+    /**
+     * Kümmert sich um die Animation des Gegners.
+     * Spielt die Todesanimation ab, wenn der Gegner tot ist.
+     */
+    animateStatus() {
+        setInterval(() => {
+            if (this.isDead) {
+                // Wenn der Gegner tot ist, spiele die Todesanimation
+                this.playAnimation(this.IMAGES_DEAD);
+            } else {
+                // Ansonsten, spiele die Laufanimation
+                this.playAnimation(this.IMAGES_WALKING);
+            }
+        }, 200);
+    }
+}
