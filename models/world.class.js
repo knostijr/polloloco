@@ -30,13 +30,8 @@ class World {
         this.gameOverImage.src = 'img/You won, you lost/gameover.png';
     }
 
-    setWorld() {
-        this.character.world = this;
-    }
-
     run() {
         setInterval(() => {
-            // check collisions
             this.checkCollisions();
             this.checkThrowObjects();
             this.checkEndbossStatus();
@@ -64,8 +59,14 @@ class World {
     }
 
     checkEnemyCollisions() {
-        this.level.enemies.forEach((enemy) => {
-            if (this.character.isColliding(enemy)) {
+        this.level.enemies.forEach((enemy, index) => {
+            // Prüfe zuerst die präzise Draufspringen-Kollision
+            if (this.character.isStompingOn(enemy)) {
+                // Wenn die Kollision von oben erfolgt, den Gegner eliminieren
+                this.level.enemies.splice(index, 1);
+                this.character.jump(); // Optionaler Rücksprung für den Charakter
+            } else if (this.character.isColliding(enemy)) {
+                // Wenn es eine Kollision von der Seite ist, nimmt der Charakter Schaden
                 this.character.hit();
                 this.statusBar.setPercentage(this.character.energy);
             }
@@ -152,6 +153,7 @@ class World {
             }
         });
     }
+
     stopGame() {
         clearInterval(this.gameInterval); // dein Game Loop Intervall
         // ggf. Musik stoppen, Tasteneingaben blockieren, usw.
@@ -173,7 +175,6 @@ class World {
             document.getElementById('restart-btn').style.display = 'block';
         }, 500);
     }
-
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);

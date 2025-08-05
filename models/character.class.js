@@ -107,9 +107,9 @@ class Character extends MoveAbleObject {
     }
 
     /**
- * Hauptmethode für alle Bewegungslogiken.
- * Läuft mit 60 FPS für eine flüssige Steuerung.
- */
+    * Hauptmethode für alle Bewegungslogiken.
+    * Läuft mit 60 FPS für eine flüssige Steuerung.
+    */
     animateMovement() {
         setInterval(() => {
             this.handleWalking();
@@ -162,9 +162,9 @@ class Character extends MoveAbleObject {
     }
 
     /**
- * Hauptmethode für alle Animationslogiken.
- * Läuft mit 10 FPS für die Animationen.
- */
+    * Hauptmethode für alle Animationslogiken.
+    * Läuft mit 10 FPS für die Animationen.
+    */
     animateAnimations() {
         setInterval(() => {
             const timePassed = new Date().getTime() - this.lastMovementTime;
@@ -191,10 +191,31 @@ class Character extends MoveAbleObject {
             this.playAnimation(this.IMAGES_IDLE);
         }
     }
-    
+
     jump() {
         this.speedY = 30;
     }
 
-}
+    // Neue, verbesserte Methode, um auf einen Gegner zu springen
+    /**
+     * Prüft, ob der Charakter von oben auf einen Gegner springt.
+     * @param {MoveableObject} enemy - Das Gegner-Objekt.
+     * @returns {boolean}
+     */
+    isStompingOn(enemy) {
+        // Die Unterseite des Charakters muss auf der Oberseite des Gegners sein
+        const characterBottom = this.y + this.height;
+        const enemyTop = enemy.y;
 
+        // Prüfe, ob die horizontale Position überlappt
+        const horizontalOverlap = (this.x + this.width > enemy.x) && (this.x < enemy.x + enemy.width);
+        
+        // Füge einen kleinen Toleranzbereich hinzu, damit die Kollision nicht verpasst wird
+        const verticalOverlap = characterBottom > enemyTop && characterBottom < enemyTop + 20;
+
+        // Die Bedingung, dass der Charakter fällt, ist entscheidend
+        const isFalling = this.speedY > 0;
+
+        return horizontalOverlap && verticalOverlap && isFalling;
+    }
+}
