@@ -16,6 +16,7 @@ class World {
     coinsCollected = 0;
     gameOverImage = new Image();
     gameIsOver = false;
+    youWon = false;
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -38,6 +39,7 @@ class World {
             // check collisions
             this.checkCollisions();
             this.checkThrowObjects();
+            this.checkEndbossStatus();
         }, 200);
     }
 
@@ -85,6 +87,41 @@ class World {
             }
         });
 
+        this.throwableObjects.forEach((bottle, index) => {
+            this.level.enemies.forEach((enemy) => {
+                if (enemy instanceof Endboss && bottle.isColliding(enemy)) {
+                    enemy.hit(); // reduce energy
+                    this.throwableObjects.splice(index, 1); // remove bottle
+                    this.statusBarEndboss.setPercentage(enemy.energy); // update status bar
+                }
+            });
+        });
+    }
+
+    showWinScreen() {
+        const winImage = new Image();
+        winImage.src = 'img/You won, you lost/youwin.png';
+
+        winImage.onload = () => {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.drawImage(winImage, 0, 0, this.canvas.width, this.canvas.height);
+        };
+    }
+
+    checkEndbossStatus() {
+        const endboss = this.level.enemies.find(e => e instanceof Endboss);
+
+        if (endboss && endboss.isDead() && !this.gameIsOver && !this.youWon) {
+            this.gameIsOver = true;
+            this.youWon = true;
+            this.stopGame();
+            setTimeout(() => this.showWinScreen(), 500);
+        }
+    }
+
+    stopGame() {
+        clearInterval(this.gameInterval); // dein Game Loop Intervall
+        // ggf. Musik stoppen, Tasteneingaben blockieren, usw.
     }
 
     endGame() {
@@ -135,8 +172,18 @@ class World {
         });
         if (this.gameIsOver) {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.ctx.drawImage(this.gameOverImage, 0, 0, this.canvas.width, this.canvas.height);
-            return;
+
+            if (this.youWon) {
+                const winImage = new Image();
+                winImage.src = 'img/You won, you lost/youwin.png';
+                winImage.onload = () => {
+                    this.ctx.drawImage(winImage, 0, 0, this.canvas.width, this.canvas.height);
+                };
+            } else {
+                this.ctx.drawImage(this.gameOverImage, 0, 0, this.canvas.width, this.canvas.height);
+            }
+
+            return; // Stop drawing
         }
 
 
