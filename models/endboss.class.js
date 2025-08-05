@@ -5,7 +5,8 @@ class Endboss extends MoveAbleObject {
     energy = 100;
     isHurt = false;
     isDeadFlag = false;
-    speed = 1;
+    isDeadAnimationDone = false;
+    speed = 2;
 
     offset = {
         top: 50,
@@ -84,9 +85,12 @@ class Endboss extends MoveAbleObject {
 
     animate() {
         this.animationInterval = setInterval(() => {
-            if (this.isDead()) {
+            if (this.isDead() && !this.isDeadAnimationDone) {
                 this.playAnimation(this.IMAGES_DEAD);
-                clearInterval(this.animationInterval); // stop animation after death
+                if (this.currentImage >= this.IMAGES_DEAD.length - 1) { // Prüfen, ob die Animation am Ende ist
+                    this.isDeadAnimationDone = true;
+                    clearInterval(this.animationInterval); // Stop animation
+                }
             } else if (this.isHurt) {
                 this.playAnimation(this.IMAGES_HURT);
                 this.isHurt = false;
@@ -129,5 +133,9 @@ class Endboss extends MoveAbleObject {
      */
     setCharacter(character) {
         this.character = character;
+    }
+
+    isDeadAnimationOver() {
+        return this.currentImage >= this.IMAGES_DEAD.length - 1;
     }
 }

@@ -68,9 +68,25 @@ class Character extends MoveAbleObject {
 
     ];
 
+    IMAGES_LONGIDLE = [
+        'img/2_character_pepe/1_idle/long_idle/I-11.png',
+        'img/2_character_pepe/1_idle/long_idle/I-12.png',
+        'img/2_character_pepe/1_idle/long_idle/I-13.png',
+        'img/2_character_pepe/1_idle/long_idle/I-14.png',
+        'img/2_character_pepe/1_idle/long_idle/I-15.png',
+        'img/2_character_pepe/1_idle/long_idle/I-16.png',
+        'img/2_character_pepe/1_idle/long_idle/I-17.png',
+        'img/2_character_pepe/1_idle/long_idle/I-18.png',
+        'img/2_character_pepe/1_idle/long_idle/I-19.png',
+        'img/2_character_pepe/1_idle/long_idle/I-20.png',
+
+    ];
+
     world;
     // Array mit allen sounds hinzufügen
     walking_sound = new Audio('audio/test.mp3');
+    lastMovementTime = new Date().getTime();
+    longIdleTimeout = null;
 
     constructor() {
         super().loadImage('img/2_character_pepe/2_walk/W-21.png');
@@ -80,50 +96,102 @@ class Character extends MoveAbleObject {
         this.loadImages(this.IMAGES_HURTING);
         this.loadImages(this.IMAGES_DYING);
         this.loadImages(this.IMAGES_IDLE);
+        this.loadImages(this.IMAGES_LONGIDLE);
         this.applyGravity();
         this.animate();
     }
 
     animate() {
-        
-        setInterval(() => {
-
-            if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
-                this.moveRight();
-                this.otherDirection = false;
-                this.walking_sound.play();
-            }
-            if (this.world.keyboard.LEFT && this.x > 0) {
-                this.moveLeft();
-                this.otherDirection = true;
-                this.walking_sound.play();
-            }
-            if (this.world.keyboard.SPACE && !this.isAboveGround()) {
-                this.jump();
-            } else {
-                //this.playAnimation(this.IMAGES_IDLE);
-            }
-
-            this.world.camera_x = -this.x + 100;
-        }, 1000 / 60);
-
-        setInterval(() => {
-            if (this.isDead()) {
-                this.playAnimation(this.IMAGES_DYING);
-            } else if (this.isHurt()) {
-                this.playAnimation(this.IMAGES_HURTING);
-            } else if (this.isAboveGround()) {
-                this.playAnimation(this.IMAGES_JUMPING);
-            } else {
-                if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-                    this.playAnimation(this.IMAGES_WALKING);
-                }
-
-            }
-        }, 100);
-
+        this.animateMovement();
+        this.animateAnimations();
     }
 
+    /**
+ * Hauptmethode für alle Bewegungslogiken.
+ * Läuft mit 60 FPS für eine flüssige Steuerung.
+ */
+    animateMovement() {
+        setInterval(() => {
+            this.handleWalking();
+            this.handleJumping();
+            this.updateLastMovementTime();
+            this.updateCameraPosition();
+        }, 1000 / 60);
+    }
+
+    /**
+     * Kümmert sich um die Laufbewegung und den Sound.
+     */
+    handleWalking() {
+        this.walking_sound.pause();
+        if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
+            this.moveRight();
+            this.otherDirection = false;
+            this.walking_sound.play();
+        }
+        if (this.world.keyboard.LEFT && this.x > 0) {
+            this.moveLeft();
+            this.otherDirection = true;
+            this.walking_sound.play();
+        }
+    }
+
+    /**
+     * Kümmert sich um die Sprungbewegung.
+     */
+    handleJumping() {
+        if (this.world.keyboard.SPACE && !this.isAboveGround()) {
+            this.jump();
+        }
+    }
+
+    /**
+     * Aktualisiert den Zeitstempel der letzten Bewegung.
+     */
+    updateLastMovementTime() {
+        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT || this.world.keyboard.SPACE) {
+            this.lastMovementTime = new Date().getTime();
+        }
+    }
+
+    /**
+     * Aktualisiert die Position der Spielkamera.
+     */
+    updateCameraPosition() {
+        this.world.camera_x = -this.x + 100;
+    }
+
+    /**
+ * Hauptmethode für alle Animationslogiken.
+ * Läuft mit 10 FPS für die Animationen.
+ */
+    animateAnimations() {
+        setInterval(() => {
+            const timePassed = new Date().getTime() - this.lastMovementTime;
+            const isLongIdle = timePassed > 5000;
+            this.setAnimation(isLongIdle);
+        }, 100);
+    }
+
+    /**
+     * Wählt und spielt die passende Animation ab.
+     */
+    setAnimation(isLongIdle) {
+        if (this.isDead()) {
+            this.playAnimation(this.IMAGES_DYING);
+        } else if (this.isHurt()) {
+            this.playAnimation(this.IMAGES_HURTING);
+        } else if (this.isAboveGround()) {
+            this.playAnimation(this.IMAGES_JUMPING);
+        } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+            this.playAnimation(this.IMAGES_WALKING);
+        } else if (isLongIdle) {
+            this.playAnimation(this.IMAGES_LONGIDLE);
+        } else {
+            this.playAnimation(this.IMAGES_IDLE);
+        }
+    }
+    
     jump() {
         this.speedY = 30;
     }
