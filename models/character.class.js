@@ -193,7 +193,7 @@ class Character extends MoveAbleObject {
     }
 
     jump() {
-        this.speedY = 30;
+        this.speedY = 20;
     }
 
     isStompingOn(enemy) {
