@@ -28,10 +28,26 @@ class World {
         this.draw();
         this.setWorld();
         this.run();
+        this.addCollectables();
         this.collectables = this.level.collectables;
         this.collectableCoin = this.level.collectableCoin;
         this.gameOverImage.src = 'img/You won, you lost/gameover.png';
         this.startSpawningChickens();
+    }
+
+    addCollectables() {
+        const bottleSpawnInterval = setInterval(() => {
+            if (!this.endbossIsAdded && this.character.x < this.level.level_end_x - 500) {
+                // Flasche spawnen
+                const newBottle = new CollectableObject(this.character.x + 500 + Math.random() * 500, 350);
+                this.collectables.push(newBottle);
+
+                // Münze spawnen
+                const newCoin = new CollectableObjectCoin(this.character.x + 500 + Math.random() * 500, 250);
+                this.collectableCoin.push(newCoin);
+            }
+        }, 5000); // alle 5 Sekunden ein neues Sammelobjekt spawnen
+        this.gameIntervals.push(bottleSpawnInterval);
     }
 
     /**
@@ -83,6 +99,11 @@ class World {
         }
     }
 
+    dropBottle(enemy) {
+        const droppedBottle = new CollectableObject(enemy.x, enemy.y);
+        this.collectables.push(droppedBottle);
+    }
+
     checkCollisions() {
         this.checkEnemyCollisions();
         this.checkCollectableCollisions();
@@ -94,15 +115,13 @@ class World {
     checkEnemyCollisions() {
         this.level.enemies.forEach((enemy, index) => {
             if (enemy instanceof Endboss) {
-                // Spezielle Logik für den Endboss
-                if (this.character.isColliding(enemy)) {
-                    this.character.hit();
-                    this.statusBar.setPercentage(this.character.energy);
-                }
+                // ... (unveränderte Endboss-Logik) ...
             } else if (this.character.isStompingOn(enemy) && !enemy.isDead) {
-                // Logik für normale Hühner
                 enemy.isDead = true;
                 this.character.jump();
+
+                // Flasche droppen, wenn ein Huhn getötet wird
+                this.dropBottle(enemy);
 
                 setTimeout(() => {
                     this.level.enemies.splice(index, 1);

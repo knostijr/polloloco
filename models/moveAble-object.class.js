@@ -82,18 +82,14 @@ class MoveAbleObject extends DrawableObject {
     }
 
     isStandingOnEnemy(enemy) {
-        // Prüfe, ob die Unterseite des Charakters über der Oberseite des Gegners liegt
+        
         const characterBottom = this.y + this.height;
         const enemyTop = enemy.y;
 
-        // Wir geben dem Ganzen einen kleinen Toleranzbereich, um Kollisionen nicht zu verpassen
         const collisionThreshold = 10;
 
-        // Prüfe, ob der Charakter auf den Gegner springt und sich noch in der Aufwärtsbewegung befindet
-        // Das ist entscheidend, damit der Charakter den Gegner nicht tötet, wenn er vom Boden aus versucht, ihn zu töten
         const isAbove = characterBottom > enemyTop && characterBottom < enemyTop + collisionThreshold;
 
-        // Prüfe, ob die x-Koordinaten ebenfalls überlappen
         const isOverlappingX = (this.x + this.width > enemy.x) && (this.x < enemy.x + enemy.width);
 
         return isAbove && isOverlappingX;
