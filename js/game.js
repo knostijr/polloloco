@@ -7,9 +7,7 @@ function init() {
     canvas = document.getElementById('canvas');
     world = new World(canvas, keyboard);
 
-    console.log('My Character is', world.character);
 }
-
 
 window.addEventListener('keydown', (event) => {
     if (event.keyCode == 39) {
@@ -64,11 +62,11 @@ window.addEventListener('keyup', (event) => {
 });
 
 function startGame() {
-  document.getElementById('start-screen').style.display = 'none';
-  document.getElementById('canvas').style.display = 'block';
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('canvas').style.display = 'block';
 
-  let canvas = document.getElementById('canvas');
-  world = new World(canvas, keyboard);
+    let canvas = document.getElementById('canvas');
+    world = new World(canvas, keyboard);
 }
 
 function restartGame() {

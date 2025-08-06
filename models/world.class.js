@@ -18,6 +18,8 @@ class World {
     gameIsOver = false;
     youWon = false;
     spawningIntervalId;
+    gameIntervals = [];
+    endbossIsAdded = false; // Neue Variable, um zu verfolgen, ob der Endboss hinzugefügt wurde
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -32,29 +34,30 @@ class World {
         this.startSpawningChickens();
     }
 
+    /**
+     * Startet den Intervall, der neue Hühner spawnt.
+     */
     startSpawningChickens() {
-        this.spawningIntervalId = setInterval(() => {
-
-            if (this.character.x < this.level.level_end_x - 500) {
-           
-                let newChicken = new Chicken();
-                let newSmallChicken = new ChickenSmall();
-    
+        const spawningInterval = setInterval(() => {
+            // Spawne nur, wenn der Endboss noch nicht im Level ist und der Charakter noch nicht
+            // in der Nähe des Level-Endes ist.
+            if (!this.endbossIsAdded && this.character.x < this.level.level_end_x - 500) {
+                const newChicken = new Chicken();
                 newChicken.x = this.character.x + 500 + Math.random() * 500;
-                newSmallChicken.x = this.character.x + 500 + Math.random() * 500;
-
-                this.level.enemies.push(newSmallChicken);
                 this.level.enemies.push(newChicken);
             }
-        }, 5000); // Spawn alle 5 Sekunden ein neues Huhn
+        }, 5000);
+        this.gameIntervals.push(spawningInterval);
     }
 
     run() {
-        setInterval(() => {
+        const gameLoopInterval = setInterval(() => {
             this.checkCollisions();
             this.checkThrowObjects();
+            this.checkEndbossAppearance();
             this.checkEndbossStatus();
         }, 200);
+        this.gameIntervals.push(gameLoopInterval);
     }
 
     checkThrowObjects() {
@@ -63,7 +66,6 @@ class World {
             this.throwableObjects.push(bottle);
             this.bottles--;
 
-            // Prozentsatz berechnen (jede Flasche = 20%)
             let percentage = (this.bottles / 5) * 100;
             this.statusBarBottle.setPercentage(percentage);
         }
@@ -79,19 +81,14 @@ class World {
 
     checkEnemyCollisions() {
         this.level.enemies.forEach((enemy, index) => {
-            // Prüfe zuerst die präzise Draufspringen-Kollision
-            // Die Bedingung !enemy.isDead verhindert, dass man auf einen bereits "toten" Gegner springt
             if (this.character.isStompingOn(enemy) && !enemy.isDead) {
-                // Wenn die Kollision von oben erfolgt, den Gegner als tot markieren
                 enemy.isDead = true;
-                this.character.jump(); // Optionaler Rücksprung für den Charakter
-
-                // Nach einer kurzen Verzögerung (für die Animation) den Gegner entfernen
+                this.character.jump();
+                
                 setTimeout(() => {
                     this.level.enemies.splice(index, 1);
-                }, 500); // 500ms Verzögerung für die Todesanimation
+                }, 500);
             } else if (this.character.isColliding(enemy) && !enemy.isDead) {
-                // Wenn es eine Kollision von der Seite ist, nimmt der Charakter Schaden
                 this.character.hit();
                 this.statusBar.setPercentage(this.character.energy);
             }
@@ -136,104 +133,106 @@ class World {
 
     checkCharacterDeath() {
         if (this.character.isDead() && !this.gameIsOver) {
-            this.endGame();
+            this.showGameOverScreenWithButtons(false);
         }
     }
 
+    /**
+     * Prüft, ob der Endboss gespawnt werden soll und fügt ihn hinzu.
+     */
+    checkEndbossAppearance() {
+        if (this.character.x > this.level.level_end_x - 700 && !this.endbossIsAdded) {
+            // Entferne alle Endboss-Instanzen, die möglicherweise schon existieren
+            this.level.enemies = this.level.enemies.filter(enemy => !(enemy instanceof Endboss));
 
-    showWinScreen() {
-        const winImage = new Image();
-        winImage.src = 'img/You won, you lost/youwin.png';
-        winImage.onload = () => {
-            this.ctx.drawImage(winImage, 0, 0, this.canvas.width, this.canvas.height);
-        };
-        // Wenn das Bild bereits geladen ist, sofort zeichnen
-        if (winImage.complete) {
-            this.ctx.drawImage(winImage, 0, 0, this.canvas.width, this.canvas.height);
+            const endboss = new Endboss();
+            endboss.setCharacter(this.character);
+            this.level.enemies.push(endboss);
+            this.endbossIsAdded = true;
         }
     }
 
-    showGameOverScreen() {
-        // Annahme: gameOverImage wurde bereits geladen
-        this.ctx.drawImage(this.gameOverImage, 0, 0, this.canvas.width, this.canvas.height);
-    }
-
+    /**
+     * Prüft den Endboss-Status und startet die Gewinnsequenz.
+     */
     checkEndbossStatus() {
         const endboss = this.level.enemies.find(e => e instanceof Endboss);
 
-        if (endboss && endboss.isDead() && endboss.isDeadAnimationDone && !this.youWon) {
-            this.gameIsOver = true;
-            this.youWon = true;
-            this.stopGame();
-            setTimeout(() => this.showWinScreen(), 500); // Verzögerung, damit die Todesanimation noch kurz zu sehen ist
+        if (endboss && endboss.isDead() && !this.youWon) {
+             // Setze eine Flagge, damit die Gewinnsequenz nur einmal gestartet wird.
+            this.youWon = true; 
+            // Verzögere das Stoppen des Spiels, um die Todesanimation zu Ende laufen zu lassen.
+            setTimeout(() => {
+                this.showGameOverScreenWithButtons(true);
+            }, 500);
         }
+    }
+
+    /**
+     * Zeigt den passenden Game-Over-Screen und die Buttons.
+     * @param {boolean} youWon - True, wenn das Spiel gewonnen wurde.
+     */
+    showGameOverScreenWithButtons(youWon) {
+        this.gameIsOver = true;
+        this.stopAllGameIntervals();
+        
+        if (youWon) {
+            document.getElementById('win-screen').style.display = 'flex';
+        } else {
+            // Zeige den Game-Over-Screen über das Canvas-Element
+            this.ctx.drawImage(this.gameOverImage, 0, 0, this.canvas.width, this.canvas.height);
+            // Das HTML-Div mit den Buttons wird ebenfalls angezeigt
+            document.getElementById('win-screen').style.display = 'flex';
+        }
+    }
+
+    /**
+     * Stoppt alle aktiven Spielintervalle.
+     */
+    stopAllGameIntervals() {
+        this.gameIntervals.forEach(interval => clearInterval(interval));
+        clearInterval(this.character.walkInterval);
+        clearInterval(this.throwBottleInterval);
+        clearInterval(this.character.movementInterval);
+        clearInterval(this.character.animationInterval);
+        this.level.enemies.forEach(enemy => {
+            clearInterval(enemy.animationInterval);
+            clearInterval(enemy.movementInterval);
+        });
     }
 
     setWorld() {
         this.character.world = this;
-
-        this.level.enemies.forEach(enemy => {
-            if (enemy instanceof Endboss) {
-                enemy.setCharacter(this.character);
-            }
-        });
-    }
-
-    stopGame() {
-        clearInterval(this.gameInterval); // dein Game Loop Intervall
-        // ggf. Musik stoppen, Tasteneingaben blockieren, usw.
-    }
-
-    endGame() {
-        this.gameIsOver = true;
-
-        // Stoppe alle Intervalle (z. B. `setInterval`s) – optional
-        clearInterval(this.character.walkInterval);
-        clearInterval(this.throwBottleInterval); // falls du einen separaten hast
-
-        // Warte kurz und zeige dann das Game Over Bild
-        setTimeout(() => {
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.ctx.drawImage(this.gameOverImage, 0, 0, this.canvas.width, this.canvas.height);
-
-            // Button einblenden
-            document.getElementById('restart-btn').style.display = 'block';
-        }, 500);
     }
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         if (this.gameIsOver) {
-            // Spiel ist vorbei, nur den Endscreen zeichnen
-            if (this.youWon) {
-                this.showWinScreen();
-            } else {
-                this.showGameOverScreen();
+            if (!this.youWon) {
+                // Zeichne den Game Over Screen, wenn das Spiel verloren wurde
+                this.ctx.drawImage(this.gameOverImage, 0, 0, this.canvas.width, this.canvas.height);
             }
             return;
         }
 
-        // Normaler Spiel-Loop
-        this.ctx.translate(this.camera_x, 0); // Kamera wird verschoben
+        this.ctx.translate(this.camera_x, 0);
         this.addObjectsToMap(this.level.backgroundObjects);
 
         this.addToMap(this.character);
         this.addObjectsToMap(this.level.clouds);
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.throwableObjects);
-        this.addObjectsToMap(this.collectables);
         this.addObjectsToMap(this.collectableCoin);
+        this.addObjectsToMap(this.collectables);
 
         this.ctx.translate(-this.camera_x, 0);
 
-        // Statusbars werden immer an der gleichen Position gezeichnet
         this.addToMap(this.statusBarCoin);
         this.addToMap(this.statusBarBottle);
         this.addToMap(this.statusBar);
         this.addToMap(this.statusBarEndboss);
 
-        // Der nächste Frame wird angefordert
         let self = this;
         requestAnimationFrame(function () {
             self.draw();
@@ -247,14 +246,12 @@ class World {
     }
 
     addToMap(mo) {
-        // spiegeln der Images. save() => wird gespeichert, translate() => einfügen der bilder wird verändert, scale() => alles wird gespiegelt
         if (mo.otherDirection) {
             this.flipImage(mo);
         }
         mo.draw(this.ctx);
         mo.drawFrame(this.ctx);
 
-        // ursprung wieder herstellen
         if (mo.otherDirection) {
             this.flipImageBack(mo);
         }
