@@ -84,7 +84,7 @@ class World {
             if (this.character.isStompingOn(enemy) && !enemy.isDead) {
                 enemy.isDead = true;
                 this.character.jump();
-                
+
                 setTimeout(() => {
                     this.level.enemies.splice(index, 1);
                 }, 500);
@@ -159,8 +159,8 @@ class World {
         const endboss = this.level.enemies.find(e => e instanceof Endboss);
 
         if (endboss && endboss.isDead() && !this.youWon) {
-             // Setze eine Flagge, damit die Gewinnsequenz nur einmal gestartet wird.
-            this.youWon = true; 
+            // Setze eine Flagge, damit die Gewinnsequenz nur einmal gestartet wird.
+            this.youWon = true;
             // Verzögere das Stoppen des Spiels, um die Todesanimation zu Ende laufen zu lassen.
             setTimeout(() => {
                 this.showGameOverScreenWithButtons(true);
@@ -168,24 +168,18 @@ class World {
         }
     }
 
-    /**
-     * Zeigt den passenden Game-Over-Screen und die Buttons.
-     * @param {boolean} youWon - True, wenn das Spiel gewonnen wurde.
-     */
     showGameOverScreenWithButtons(youWon) {
         this.gameIsOver = true;
         this.stopAllGameIntervals();
-        
+
         if (youWon) {
+            document.getElementById('canvas').style.display = 'none';
             document.getElementById('win-screen').style.display = 'flex';
         } else {
-            // Zeige den Game-Over-Screen über das Canvas-Element
-            this.ctx.drawImage(this.gameOverImage, 0, 0, this.canvas.width, this.canvas.height);
-            // Das HTML-Div mit den Buttons wird ebenfalls angezeigt
-            document.getElementById('win-screen').style.display = 'flex';
+            document.getElementById('canvas').style.display = 'none';
+            document.getElementById('lose-screen').style.display = 'flex';
         }
     }
-
     /**
      * Stoppt alle aktiven Spielintervalle.
      */
