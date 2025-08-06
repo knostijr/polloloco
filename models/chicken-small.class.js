@@ -4,8 +4,8 @@ class ChickenSmall extends MoveAbleObject {
     width = 30;
     isDead = false;
     offset = {
-        top: 10,
-        bottom: 10,
+        top: 20,
+        bottom: 5,
         left: 0,
         right: 0
     };
