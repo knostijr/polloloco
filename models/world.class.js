@@ -36,17 +36,17 @@ class World {
     }
 
     addCollectables() {
-        const bottleSpawnInterval = setInterval(() => {
+        let bottleSpawnInterval = setInterval(() => {
             if (!this.endbossIsAdded && this.character.x < this.level.level_end_x - 500) {
                 // Flasche spawnen
-                const newBottle = new CollectableObject(this.character.x + 500 + Math.random() * 500, 350);
+                let newBottle = new CollectableObject(this.character.x + 500 + Math.random() * 500, 250);
                 this.collectables.push(newBottle);
 
                 // Münze spawnen
-                const newCoin = new CollectableObjectCoin(this.character.x + 500 + Math.random() * 500, 250);
+                let newCoin = new CollectableObjectCoin(this.character.x + 500 + Math.random() * 500, 250);
                 this.collectableCoin.push(newCoin);
             }
-        }, 5000); // alle 5 Sekunden ein neues Sammelobjekt spawnen
+        }, 2300); // alle 5 Sekunden ein neues Sammelobjekt spawnen
         this.gameIntervals.push(bottleSpawnInterval);
     }
 
@@ -54,12 +54,12 @@ class World {
      * Startet den Intervall, der neue Hühner spawnt.
      */
     startSpawningChickens() {
-        const spawningInterval = setInterval(() => {
+        let spawningInterval = setInterval(() => {
             // Spawne nur, wenn der Endboss noch nicht im Level ist und der Charakter noch nicht
             // in der Nähe des Level-Endes ist.
             if (!this.endbossIsAdded && this.character.x < this.level.level_end_x - 500) {
                 // Zufällig entscheiden, ob ein normales oder ein kleines Huhn gespawnt wird
-                const isSmallChicken = Math.random() < 0.5; // 50% Wahrscheinlichkeit für ein kleines Huhn
+                let isSmallChicken = Math.random() < 0.5; // 50% Wahrscheinlichkeit für ein kleines Huhn
 
                 let newEnemy;
                 if (isSmallChicken) {
@@ -74,12 +74,12 @@ class World {
                 // Füge den neuen Gegner zur Gegner-Liste hinzu
                 this.level.enemies.push(newEnemy);
             }
-        }, 4000);
+        }, 2000);
         this.gameIntervals.push(spawningInterval);
     }
 
     run() {
-        const gameLoopInterval = setInterval(() => {
+        let gameLoopInterval = setInterval(() => {
             this.checkCollisions();
             this.checkThrowObjects();
             this.checkEndbossAppearance();
@@ -100,7 +100,7 @@ class World {
     }
 
     dropBottle(enemy) {
-        const droppedBottle = new CollectableObject(enemy.x, enemy.y);
+        let droppedBottle = new CollectableObject(enemy.x, enemy.y);
         this.collectables.push(droppedBottle);
     }
 
@@ -113,31 +113,31 @@ class World {
     }
 
     checkEnemyCollisions() {
-    this.level.enemies.forEach((enemy, index) => {
-        // Logik für den Endboss
-        if (enemy instanceof Endboss) {
-            if (this.character.isColliding(enemy)) {
-                this.character.hit();
-                this.statusBar.setPercentage(this.character.energy);
+        this.level.enemies.forEach((enemy, index) => {
+            // Logik für den Endboss
+            if (enemy instanceof Endboss) {
+                if (this.character.isColliding(enemy)) {
+                    this.character.hit();
+                    this.statusBar.setPercentage(this.character.energy);
+                }
             }
-        }
-        // Logik für alle anderen Gegner (Hühner)
-        else {
-            if (this.character.isStompingOn(enemy) && !enemy.isDead) {
-                enemy.isDead = true;
-                this.character.jump();
-                this.dropBottle(enemy); // Flasche droppen
-    
-                setTimeout(() => {
-                    this.level.enemies.splice(index, 1);
-                }, 500);
-            } else if (this.character.isColliding(enemy) && !enemy.isDead) {
-                this.character.hit();
-                this.statusBar.setPercentage(this.character.energy);
+            // Logik für alle anderen Gegner (Hühner)
+            else {
+                if (this.character.isStompingOn(enemy) && !enemy.isDead) {
+                    enemy.isDead = true;
+                    this.character.jump();
+                    this.dropBottle(enemy); // Flasche droppen
+
+                    setTimeout(() => {
+                        this.level.enemies.splice(index, 1);
+                    }, 500);
+                } else if (this.character.isColliding(enemy) && !enemy.isDead) {
+                    this.character.hit();
+                    this.statusBar.setPercentage(this.character.energy);
+                }
             }
-        }
-    });
-}
+        });
+    }
 
     checkCollectableCollisions() {
         this.collectables.forEach((collectable, index) => {
@@ -200,7 +200,7 @@ class World {
      * Prüft den Endboss-Status und startet die Gewinnsequenz.
      */
     checkEndbossStatus() {
-        const endboss = this.level.enemies.find(e => e instanceof Endboss);
+        let endboss = this.level.enemies.find(e => e instanceof Endboss);
 
         if (endboss && endboss.isDead() && !this.youWon) {
             // Setze eine Flagge, damit die Gewinnsequenz nur einmal gestartet wird.

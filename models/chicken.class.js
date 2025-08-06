@@ -4,7 +4,7 @@ class Chicken extends MoveAbleObject {
     width = 50;
     isDead = false;
     offset = {
-        top: 0,
+        top: 10,
         bottom: 10,
         left: 0,
         right: 0
