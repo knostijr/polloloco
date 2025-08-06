@@ -5,9 +5,27 @@ let keyboard = new Keyboard();
 
 function init() {
     canvas = document.getElementById('canvas');
-    world = new World(canvas, keyboard);
+    //world = new World(canvas, keyboard);
 
 }
+
+function startGame() {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('canvas').style.display = 'block';
+
+    let canvas = document.getElementById('canvas');
+    world = new World(canvas, keyboard);
+}
+
+function restartGame() {
+    location.reload(); // lädt die Seite neu → zurück zum Startscreen
+}
+
+window.addEventListener('keydown', (e) => {
+    if (world?.gameIsOver && (e.key === 'r' || e.key === 'Enter')) {
+        restartGame();
+    }
+});
 
 window.addEventListener('keydown', (event) => {
     if (event.keyCode == 39) {
@@ -61,20 +79,3 @@ window.addEventListener('keyup', (event) => {
     }
 });
 
-function startGame() {
-    document.getElementById('start-screen').style.display = 'none';
-    document.getElementById('canvas').style.display = 'block';
-
-    let canvas = document.getElementById('canvas');
-    world = new World(canvas, keyboard);
-}
-
-function restartGame() {
-    location.reload(); // lädt die Seite neu → zurück zum Startscreen
-}
-
-window.addEventListener('keydown', (e) => {
-    if (world?.gameIsOver && (e.key === 'r' || e.key === 'Enter')) {
-        restartGame();
-    }
-});

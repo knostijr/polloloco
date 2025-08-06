@@ -42,11 +42,23 @@ class World {
             // Spawne nur, wenn der Endboss noch nicht im Level ist und der Charakter noch nicht
             // in der Nähe des Level-Endes ist.
             if (!this.endbossIsAdded && this.character.x < this.level.level_end_x - 500) {
-                const newChicken = new Chicken();
-                newChicken.x = this.character.x + 500 + Math.random() * 500;
-                this.level.enemies.push(newChicken);
+                // Zufällig entscheiden, ob ein normales oder ein kleines Huhn gespawnt wird
+                const isSmallChicken = Math.random() < 0.5; // 50% Wahrscheinlichkeit für ein kleines Huhn
+
+                let newEnemy;
+                if (isSmallChicken) {
+                    newEnemy = new ChickenSmall();
+                } else {
+                    newEnemy = new Chicken();
+                }
+
+                // Setze die Position des neuen Gegners
+                newEnemy.x = this.character.x + 500 + Math.random() * 500;
+
+                // Füge den neuen Gegner zur Gegner-Liste hinzu
+                this.level.enemies.push(newEnemy);
             }
-        }, 5000);
+        }, 4000);
         this.gameIntervals.push(spawningInterval);
     }
 
@@ -81,7 +93,14 @@ class World {
 
     checkEnemyCollisions() {
         this.level.enemies.forEach((enemy, index) => {
-            if (this.character.isStompingOn(enemy) && !enemy.isDead) {
+            if (enemy instanceof Endboss) {
+                // Spezielle Logik für den Endboss
+                if (this.character.isColliding(enemy)) {
+                    this.character.hit();
+                    this.statusBar.setPercentage(this.character.energy);
+                }
+            } else if (this.character.isStompingOn(enemy) && !enemy.isDead) {
+                // Logik für normale Hühner
                 enemy.isDead = true;
                 this.character.jump();
 

@@ -3,6 +3,12 @@ class ChickenSmall extends MoveAbleObject {
     height = 50;
     width = 30;
     isDead = false;
+    offset = {
+        top: 10,
+        bottom: 10,
+        left: 0,
+        right: 0
+    };
     IMAGES_WALKING = [
         'img/3_enemies_chicken/chicken_small/1_walk/1_w.png',
         'img/3_enemies_chicken/chicken_small/1_walk/2_w.png',
@@ -25,7 +31,7 @@ class ChickenSmall extends MoveAbleObject {
         this.animate();
     }
 
-     animate() {
+    animate() {
         this.animateMovement();
         this.animateStatus();
     }
