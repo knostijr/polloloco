@@ -113,16 +113,21 @@ class World {
     }
 
     checkEnemyCollisions() {
-        this.level.enemies.forEach((enemy, index) => {
-            if (enemy instanceof Endboss) {
-                // ... (unveränderte Endboss-Logik) ...
-            } else if (this.character.isStompingOn(enemy) && !enemy.isDead) {
+    this.level.enemies.forEach((enemy, index) => {
+        // Logik für den Endboss
+        if (enemy instanceof Endboss) {
+            if (this.character.isColliding(enemy)) {
+                this.character.hit();
+                this.statusBar.setPercentage(this.character.energy);
+            }
+        }
+        // Logik für alle anderen Gegner (Hühner)
+        else {
+            if (this.character.isStompingOn(enemy) && !enemy.isDead) {
                 enemy.isDead = true;
                 this.character.jump();
-
-                // Flasche droppen, wenn ein Huhn getötet wird
-                this.dropBottle(enemy);
-
+                this.dropBottle(enemy); // Flasche droppen
+    
                 setTimeout(() => {
                     this.level.enemies.splice(index, 1);
                 }, 500);
@@ -130,8 +135,9 @@ class World {
                 this.character.hit();
                 this.statusBar.setPercentage(this.character.energy);
             }
-        });
-    }
+        }
+    });
+}
 
     checkCollectableCollisions() {
         this.collectables.forEach((collectable, index) => {
