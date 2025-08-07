@@ -17,8 +17,21 @@ function startGame() {
     world = new World(canvas, keyboard);
 }
 
-function restartGame() {
+/*function restartGame() {
     location.reload(); // lädt die Seite neu → zurück zum Startscreen
+}*/
+
+function restartGame() {
+    // Blende alle End-Screens aus
+    document.getElementById('win-screen').style.display = 'none';
+    document.getElementById('lose-screen').style.display = 'none';
+
+    // Zeige das Canvas wieder an
+    document.getElementById('canvas').style.display = 'block';
+
+    // Initialisiere das Spiel neu
+    init(); // Stellt sicher, dass alle Variablen zurückgesetzt sind
+    startGame(); // Startet das Spiel
 }
 
 window.addEventListener('keydown', (e) => {

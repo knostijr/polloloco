@@ -204,7 +204,7 @@ class Character extends MoveAbleObject {
     }
 
     isStompingOn(enemy) {
-        // Die Kollision von oben ist präzise, wenn sich der Charakter im Fall befindet und seine Unterkante über der Oberkante des Gegners liegt.
-        return this.isColliding(enemy) && this.speedY > 0 && (this.y + this.height - 20) < (enemy.y + enemy.height - 20);
+        
+        return this.isColliding(enemy) && this.speedY < 0 && (this.y + this.height - 20) < (enemy.y + enemy.height - 20);
     }
 }

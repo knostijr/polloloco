@@ -77,7 +77,7 @@ class World {
         }, 2000);
         this.gameIntervals.push(spawningInterval);
     }
-
+    // aufteilen => damit
     run() {
         let gameLoopInterval = setInterval(() => {
             this.checkCollisions();
