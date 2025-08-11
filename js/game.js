@@ -17,9 +17,9 @@ function startGame() {
     world = new World(canvas, keyboard);
 }
 
-/*function restartGame() {
+function restartGame() {
     location.reload(); // lädt die Seite neu → zurück zum Startscreen
-}*/
+}
 
 function restartGame() {
     // Blende alle End-Screens aus

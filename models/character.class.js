@@ -201,6 +201,7 @@ class Character extends MoveAbleObject {
 
     jump() {
         this.speedY = 20;
+        this.jump_sound.play();
     }
 
     isStompingOn(enemy) {

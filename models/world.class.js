@@ -33,6 +33,16 @@ class World {
         this.collectableCoin = this.level.collectableCoin;
         this.gameOverImage.src = 'img/You won, you lost/gameover.png';
         this.startSpawningChickens();
+        this.loadSounds();
+    }
+
+    loadSounds() {
+        this.sounds = {
+            jump: new Audio('audio/pepejumping.mp3'),
+            gameOver: new Audio('audio/game-over-deep-m.mp3'),
+            youWin: new Audio('audio/youwin.mp3'),
+            // Weitere Sounds hier hinzufügen...
+        };
     }
 
     addCollectables() {
