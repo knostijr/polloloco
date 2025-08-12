@@ -90,6 +90,7 @@ class Character extends MoveAbleObject {
     ];
 
     world;
+    soundManager;
 
     lastMovementTime = new Date().getTime();
     longIdleTimeout = null;
@@ -103,7 +104,7 @@ class Character extends MoveAbleObject {
         this.loadImages(this.IMAGES_DYING);
         this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_LONGIDLE);
-
+        this.soundManager = SoundManager.getInstance();
         this.applyGravity();
         this.animate();
 
@@ -134,11 +135,13 @@ class Character extends MoveAbleObject {
         if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
             this.moveRight();
             this.otherDirection = false;
+            this.soundManager.play('sandwalk_pepe');
         
         }
         if (this.world.keyboard.LEFT && this.x > 0) {
             this.moveLeft();
             this.otherDirection = true;
+            this.soundManager.play('sandwalk_pepe');
         
         }
     }
@@ -149,7 +152,7 @@ class Character extends MoveAbleObject {
     handleJumping() {
         if (this.world.keyboard.SPACE && !this.isAboveGround()) {
             this.jump();
-            this.soundManager.play('audio/pepejumping.mp3');
+            this.soundManager.play('pepejumping');
         }
     }
 
