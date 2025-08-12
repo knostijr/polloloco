@@ -15,12 +15,12 @@ class World {
     collectableCoin = [];
     coinsCollected = 0;
     gameOverImage = new Image();
+    soundManager = SoundManager.getInstance();
     gameIsOver = false;
     youWon = false;
     spawningIntervalId;
     gameIntervals = [];
     endbossIsAdded = false;
-
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -34,53 +34,11 @@ class World {
         this.collectableCoin = this.level.collectableCoin;
         this.gameOverImage.src = 'img/You won, you lost/gameover.png';
         this.startSpawningChickens();
+        this.soundManager.play('backgroundmusic', 0.01);
 
     }
 
 
-    addCollectables() {
-        let bottleSpawnInterval = setInterval(() => {
-            if (!this.endbossIsAdded && this.character.x < this.level.level_end_x - 500) {
-                // Flasche spawnen
-                let newBottle = new CollectableObject(this.character.x + 500 + Math.random() * 500, 250);
-                this.collectables.push(newBottle);
-
-                // Münze spawnen
-                let newCoin = new CollectableObjectCoin(this.character.x + 500 + Math.random() * 500, 250);
-                this.collectableCoin.push(newCoin);
-            }
-        }, 2300); // alle 5 Sekunden ein neues Sammelobjekt spawnen
-        this.gameIntervals.push(bottleSpawnInterval);
-    }
-
-    /**
-     * Startet den Intervall, der neue Hühner spawnt.
-     */
-    startSpawningChickens() {
-        let spawningInterval = setInterval(() => {
-            // Spawne nur, wenn der Endboss noch nicht im Level ist und der Charakter noch nicht
-            // in der Nähe des Level-Endes ist.
-            if (!this.endbossIsAdded && this.character.x < this.level.level_end_x - 500) {
-                // Zufällig entscheiden, ob ein normales oder ein kleines Huhn gespawnt wird
-                let isSmallChicken = Math.random() < 0.5; // 50% Wahrscheinlichkeit für ein kleines Huhn
-
-                let newEnemy;
-                if (isSmallChicken) {
-                    newEnemy = new ChickenSmall();
-                } else {
-                    newEnemy = new Chicken();
-                }
-
-                // Setze die Position des neuen Gegners
-                newEnemy.x = this.character.x + 500 + Math.random() * 500;
-
-                // Füge den neuen Gegner zur Gegner-Liste hinzu
-                this.level.enemies.push(newEnemy);
-            }
-        }, 2000);
-        this.gameIntervals.push(spawningInterval);
-    }
-    // aufteilen => damit
     run() {
         let gameLoopInterval = setInterval(() => {
             this.checkCollisions();
@@ -145,6 +103,7 @@ class World {
     checkCollectableCollisions() {
         this.collectables.forEach((collectable, index) => {
             if (this.character.isColliding(collectable)) {
+                this.soundManager.play('pickupbottle', 0.09);
                 if (this.bottles < 5) {
                     this.bottles++;
                     let percentage = (this.bottles / 5) * 100;
@@ -158,6 +117,7 @@ class World {
     checkCoinCollisions() {
         this.collectableCoin.forEach((coin, index) => {
             if (this.character.isColliding(coin)) {
+                this.soundManager.play('pickupcoin', 0.09);
                 this.collectableCoin.splice(index, 1);
                 this.coinsCollected++;
                 let percentage = Math.min(this.coinsCollected * 20, 100);
@@ -218,11 +178,14 @@ class World {
     showGameOverScreenWithButtons(youWon) {
         this.gameIsOver = true;
         this.stopAllGameIntervals();
+        this.soundManager.stop('backgroundmusic');
 
         if (youWon) {
+            this.soundManager.play('youwin');
             document.getElementById('canvas').style.display = 'none';
             document.getElementById('win-screen').style.display = 'flex';
         } else {
+            this.soundManager.play('gameover');
             document.getElementById('canvas').style.display = 'none';
             document.getElementById('lose-screen').style.display = 'flex';
         }
@@ -244,6 +207,37 @@ class World {
 
     setWorld() {
         this.character.world = this;
+    }
+
+    addCollectables() {
+        let bottleSpawnInterval = setInterval(() => {
+            if (!this.endbossIsAdded && this.character.x < this.level.level_end_x - 500) {
+              
+                let newBottle = new CollectableObject(this.character.x + 500 + Math.random() * 500, 250);
+                this.collectables.push(newBottle);
+
+                let newCoin = new CollectableObjectCoin(this.character.x + 500 + Math.random() * 500, 250);
+                this.collectableCoin.push(newCoin);
+            }
+        }, 2300); // alle 5 Sekunden ein neues Sammelobjekt spawnen
+        this.gameIntervals.push(bottleSpawnInterval);
+    }
+
+    startSpawningChickens() {
+        let spawningInterval = setInterval(() => {
+            if (!this.endbossIsAdded && this.character.x < this.level.level_end_x - 500) {
+                let isSmallChicken = Math.random() < 0.5;
+                let newEnemy;
+                if (isSmallChicken) {
+                    newEnemy = new ChickenSmall();
+                } else {
+                    newEnemy = new Chicken();
+                }
+                newEnemy.x = this.character.x + 500 + Math.random() * 500;
+                this.level.enemies.push(newEnemy);
+            }
+        }, 2000);
+        this.gameIntervals.push(spawningInterval);
     }
 
     draw() {

@@ -1,5 +1,5 @@
 class ChickenSmall extends MoveAbleObject {
-    y = 310;
+    y = 290;
     height = 70;
     width = 50;
     isDead = false;

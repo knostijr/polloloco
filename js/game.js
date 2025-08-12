@@ -2,17 +2,16 @@ let canvas;
 let world;
 let keyboard = new Keyboard();
 
-
-
 function init() {
     soundManager = new SoundManager();
     canvas = document.getElementById('canvas');
-
-    //world = new World(canvas, keyboard);
-
 }
 
+
 function startGame() {
+    let soundManager = SoundManager.getInstance();
+    soundManager.play('buttonClick', 1, 2);
+
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('canvas').style.display = 'block';
 
@@ -20,14 +19,14 @@ function startGame() {
     world = new World(canvas, keyboard);
 }
 
-function restartGame() {
-    location.reload(); // lädt die Seite neu → zurück zum Startscreen
-}
 
 function restartGame() {
+    let soundManager = SoundManager.getInstance();
+    soundManager.play('buttonClick', 1, 2);
     // Blende alle End-Screens aus
     document.getElementById('win-screen').style.display = 'none';
     document.getElementById('lose-screen').style.display = 'none';
+    document.getElementById('start-screen').style.display = 'none';
 
     // Zeige das Canvas wieder an
     document.getElementById('canvas').style.display = 'block';
@@ -36,6 +35,7 @@ function restartGame() {
     init(); // Stellt sicher, dass alle Variablen zurückgesetzt sind
     startGame(); // Startet das Spiel
 }
+
 
 window.addEventListener('keydown', (e) => {
     if (world?.gameIsOver && (e.key === 'r' || e.key === 'Enter')) {

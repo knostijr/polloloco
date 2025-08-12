@@ -27,7 +27,7 @@ class SoundManager {
         this.sounds.backgroundmusic.loop = true;
     }
 
-    play(soundName, volume = 0.5) {
+    play(soundName, volume = 0.5, speed = 1) {
         if (this.isMuted) {
             return;
         }
@@ -36,6 +36,7 @@ class SoundManager {
         if (sound) {
             sound.currentTime = 0; // Stellt den Sound auf den Anfang zurück
             sound.volume = volume;
+            sound.playbackRate = speed;
             sound.play().catch(e => console.error("Sound playback failed:", e));
         }
     }

@@ -136,6 +136,7 @@ class Character extends MoveAbleObject {
             this.moveRight();
             this.otherDirection = false;
             this.soundManager.play('sandwalk_pepe');
+            
         
         }
         if (this.world.keyboard.LEFT && this.x > 0) {

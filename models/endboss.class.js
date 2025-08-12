@@ -66,6 +66,7 @@ class Endboss extends MoveAbleObject {
         this.loadImages(this.IMAGES_DEAD);
 
         this.x = 2000;
+        this.soundManager = SoundManager.getInstance();
         this.animate();
     }
 
@@ -122,6 +123,7 @@ class Endboss extends MoveAbleObject {
     handleActiveState() {
         if (this.isCharacterInAttackRange()) {
             this.playAnimation(this.IMAGES_ATTACK);
+            this.soundManager.play('endbossvoice', 0.1);
         } else if (this.isCharacterInWalkRange()) {
             this.playAnimation(this.IMAGES_WALKING);
             this.moveTowardsCharacter();
