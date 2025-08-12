@@ -19,7 +19,8 @@ class World {
     youWon = false;
     spawningIntervalId;
     gameIntervals = [];
-    endbossIsAdded = false; // Neue Variable, um zu verfolgen, ob der Endboss hinzugefügt wurde
+    endbossIsAdded = false;
+
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -33,17 +34,9 @@ class World {
         this.collectableCoin = this.level.collectableCoin;
         this.gameOverImage.src = 'img/You won, you lost/gameover.png';
         this.startSpawningChickens();
-        this.loadSounds();
+
     }
 
-    loadSounds() {
-        this.sounds = {
-            jump: new Audio('audio/pepejumping.mp3'),
-            gameOver: new Audio('audio/game-over-deep-m.mp3'),
-            youWin: new Audio('audio/youwin.mp3'),
-            // Weitere Sounds hier hinzufügen...
-        };
-    }
 
     addCollectables() {
         let bottleSpawnInterval = setInterval(() => {

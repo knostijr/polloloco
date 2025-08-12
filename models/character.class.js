@@ -90,8 +90,7 @@ class Character extends MoveAbleObject {
     ];
 
     world;
-    // Array mit allen sounds hinzufügen
-    walking_sound = new Audio('audio/test.mp3');
+
     lastMovementTime = new Date().getTime();
     longIdleTimeout = null;
 
@@ -104,8 +103,10 @@ class Character extends MoveAbleObject {
         this.loadImages(this.IMAGES_DYING);
         this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_LONGIDLE);
+
         this.applyGravity();
         this.animate();
+
     }
 
     animate() {
@@ -130,16 +131,15 @@ class Character extends MoveAbleObject {
      * Kümmert sich um die Laufbewegung und den Sound.
      */
     handleWalking() {
-        this.walking_sound.pause();
         if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
             this.moveRight();
             this.otherDirection = false;
-            this.walking_sound.play();
+        
         }
         if (this.world.keyboard.LEFT && this.x > 0) {
             this.moveLeft();
             this.otherDirection = true;
-            this.walking_sound.play();
+        
         }
     }
 
@@ -149,6 +149,7 @@ class Character extends MoveAbleObject {
     handleJumping() {
         if (this.world.keyboard.SPACE && !this.isAboveGround()) {
             this.jump();
+            this.soundManager.play('audio/pepejumping.mp3');
         }
     }
 
@@ -201,11 +202,10 @@ class Character extends MoveAbleObject {
 
     jump() {
         this.speedY = 20;
-        this.jump_sound.play();
     }
 
     isStompingOn(enemy) {
-        
+
         return this.isColliding(enemy) && this.speedY < 0 && (this.y + this.height - 20) < (enemy.y + enemy.height - 20);
     }
 }

@@ -3,8 +3,11 @@ let world;
 let keyboard = new Keyboard();
 
 
+
 function init() {
+    soundManager = new SoundManager();
     canvas = document.getElementById('canvas');
+
     //world = new World(canvas, keyboard);
 
 }
