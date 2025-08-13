@@ -152,7 +152,7 @@ class World {
             // Entferne alle Endboss-Instanzen, die möglicherweise schon existieren
             this.level.enemies = this.level.enemies.filter(enemy => !(enemy instanceof Endboss));
 
-            const endboss = new Endboss();
+            let endboss = new Endboss();
             endboss.setCharacter(this.character);
             this.level.enemies.push(endboss);
             this.endbossIsAdded = true;

@@ -1,10 +1,24 @@
 let canvas;
 let world;
 let keyboard = new Keyboard();
+let soundManager;
+
+document.addEventListener('DOMContentLoaded', init);
 
 function init() {
-    soundManager = new SoundManager();
+    soundManager = SoundManager.getInstance();
     canvas = document.getElementById('canvas');
+
+    document.getElementById('mute-button').addEventListener('click', () => {
+        soundManager.toggleMute();
+
+        let muteButton = document.getElementById('mute-button');
+        if (soundManager.isMuted) {
+            muteButton.src = 'img/mute.png';
+        } else {
+            muteButton.src = 'img/unmute.png';
+        }
+    });
 }
 
 
