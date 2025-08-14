@@ -31,15 +31,7 @@ class World {
         this.canvas = canvas;
         this.keyboard = keyboard;
         this.setWorld();
-        this.run();
-        this.addCollectables();
-        this.startSpawningChickens();
-        this.setGameInterval(() => {
-            this.updateMovement();
-        }, 1000 / 60);
-        this.setGameInterval(() => {
-            this.updateAnimations();
-        }, 100);
+        this.run(); // Startet alle Game-Loops
         this.gameOverImage.src = 'img/You won, you lost/gameover.png';
         this.soundManager.play('backgroundmusic', 0.01);
         this.draw();
@@ -50,13 +42,33 @@ class World {
         this.gameIntervals.push(id);
     }
 
+    /**
+     * Startet alle Haupt-Game-Loops.
+     */
+    // In der World-Klasse
     run() {
         this.setGameInterval(() => {
+            // Diese Logik soll immer laufen, auch wenn das Spiel pausiert ist
             this.checkCollisions();
             this.checkThrowObjects();
             this.checkEndbossAppearance();
             this.checkEndbossStatus();
         }, 200);
+
+        this.setGameInterval(() => {
+            if (!this.isPaused) {
+                this.updateMovement();
+            }
+        }, 1000 / 60);
+
+        this.setGameInterval(() => {
+            if (!this.isPaused) {
+                this.updateAnimations();
+            }
+        }, 100);
+
+        this.addCollectables();
+        this.startSpawningChickens();
     }
 
     pauseGame() {
@@ -88,20 +100,23 @@ class World {
     updateAnimations() {
         this.character.animate();
         this.level.enemies.forEach(enemy => enemy.animate());
-        
+
         let endbossInstance = this.level.enemies.find(e => e instanceof Endboss);
         if (endbossInstance) {
             endbossInstance.animate();
         }
     }
 
+    /**
+     * NEU: Startet alle Loops, wenn das Spiel fortgesetzt wird.
+     * Es ruft einfach die run()-Methode auf, die jetzt alle Intervalle startet.
+     */
     resumeGame() {
         if (this.isPaused) {
             this.isPaused = false;
             this.run();
-            this.addCollectables();
-            this.startSpawningChickens();
             this.soundManager.play('backgroundmusic', 0.01);
+            this.draw();
         }
     }
 
@@ -282,20 +297,24 @@ class World {
         }
 
         if (this.isPaused) {
+            let pauseImage = new Image();
+            pauseImage.src = 'img/9_intro_outro_screens/start/startscreen_1.png';
+            this.ctx.drawImage(pauseImage, 0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.font = 'bold 70px Arial';
+            this.ctx.fillStyle = 'white';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('PAUSE', this.canvas.width / 2, this.canvas.height / 2);
 
         } else {
             this.ctx.translate(this.camera_x, 0);
             this.addObjectsToMap(this.level.backgroundObjects);
-
             this.addToMap(this.character);
             this.addObjectsToMap(this.level.clouds);
             this.addObjectsToMap(this.level.enemies);
             this.addObjectsToMap(this.throwableObjects);
             this.addObjectsToMap(this.collectableCoin);
             this.addObjectsToMap(this.collectables);
-
             this.ctx.translate(-this.camera_x, 0);
-
             this.addToMap(this.statusBarCoin);
             this.addToMap(this.statusBarBottle);
             this.addToMap(this.statusBar);
