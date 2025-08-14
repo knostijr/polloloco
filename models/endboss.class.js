@@ -6,8 +6,11 @@ class Endboss extends MoveAbleObject {
     isHurt = false;
     isDeadFlag = false;
     isDeadAnimationDone = false;
-    animationInterval;
     speed = 2;
+    lastAnimationTime = 0;
+    character = null;
+    currentAction = 'alert';
+    isActivated = false;
 
     offset = {
         top: 50,
@@ -64,11 +67,101 @@ class Endboss extends MoveAbleObject {
         this.loadImages(this.IMAGES_ATTACK);
         this.loadImages(this.IMAGES_HURT);
         this.loadImages(this.IMAGES_DEAD);
-
         this.x = 2000;
         this.soundManager = SoundManager.getInstance();
-        this.animate();
     }
+    
+    checkState() {
+        if (this.isDead()) {
+            this.currentAction = 'dead';
+        } else if (this.isHurt) {
+            this.currentAction = 'hurt';
+        } else if (this.isCharacterInAttackRange()) {
+            this.currentAction = 'attack';
+        } else if (this.isCharacterInWalkRange()) {
+            this.currentAction = 'walk';
+        } else {
+            this.currentAction = 'alert';
+        }
+    }
+
+    animate() {
+        this.checkState();
+        if (this.currentAction === 'dead' && this.isDeadAnimationDone) {
+            return;
+        }
+        
+        let now = new Date().getTime();
+        let timePassed = now - this.lastAnimationTime;
+        let animationInterval = 250; 
+
+        if (this.currentAction === 'hurt' || this.currentAction === 'attack') {
+            animationInterval = 100;
+        }
+
+        if (timePassed > animationInterval) {
+            switch(this.currentAction) {
+                case 'dead':
+                    this.playAnimation(this.IMAGES_DEAD);
+                    if (this.currentImage >= this.IMAGES_DEAD.length - 1) {
+                        this.isDeadAnimationDone = true;
+                    }
+                    break;
+                case 'hurt':
+                    this.playAnimation(this.IMAGES_HURT);
+                    this.isHurt = false;
+                    break;
+                case 'attack':
+                    this.playAnimation(this.IMAGES_ATTACK);
+                    this.soundManager.play('endbossvoice', 0.1);
+                    break;
+                case 'walk':
+                    this.playAnimation(this.IMAGES_WALKING);
+                    break;
+                case 'alert':
+                    this.playAnimation(this.IMAGES_ALERT);
+                    break;
+            }
+            this.lastAnimationTime = now;
+        }
+    }
+
+    handleMovement() {
+        // Zuerst die Aktivierung prüfen
+        if (!this.isActivated) {
+            if (this.isCharacterInActivationRange()) {
+                this.isActivated = true;
+            }
+        }
+        
+        // Führe Bewegungen nur aus, wenn der Endboss aktiviert ist
+        if (this.isActivated) {
+            this.checkState();
+            if (this.currentAction === 'walk') {
+                this.moveTowardsCharacter();
+            }
+        } else {
+            // Bleibt im Alert-Zustand, wenn nicht aktiviert
+            this.currentAction = 'alert';
+        }
+    }
+
+  moveTowardsCharacter() {
+    if (this.character) {
+        // Stoppt die Bewegung, wenn der Charakter in Angriffsreichweite ist
+        if (this.isCharacterInAttackRange()) {
+            return;
+        }
+        // Bewegt sich auf den Charakter zu
+        if (this.x > this.character.x) {
+            this.x -= this.speed;
+            this.otherDirection = false;
+        } else if (this.x < this.character.x) {
+            this.x += this.speed;
+            this.otherDirection = true;
+        }
+    }
+}
 
     hit() {
         if (this.energy > 0) {
@@ -85,85 +178,19 @@ class Endboss extends MoveAbleObject {
         return this.isDeadFlag;
     }
 
-    animate() {
-        this.animationInterval = setInterval(() => {
-            if (this.isDead() && !this.isDeadAnimationDone) {
-                this.handleDeathAnimation();
-            } else if (this.isHurt) {
-                this.handleHurt();
-            } else {
-                this.handleActiveState();
-            }
-        }, 150);
+    isCharacterInActivationRange() {
+        return this.character && Math.abs(this.x - this.character.x) < 700;
     }
 
-    /**
-     * Verwaltet die Todesanimation.
-     * Stoppt die Animation, wenn sie abgeschlossen ist.
-     */
-    handleDeathAnimation() {
-        this.playAnimation(this.IMAGES_DEAD);
-        if (this.currentImage >= this.IMAGES_DEAD.length - 1) {
-            this.isDeadAnimationDone = true;
-            clearInterval(this.animationInterval); // Stoppe die Animation nach dem Tod
-        }
-    }
-
-    /**
-     * Verwaltet den Zustand bei Schaden.
-     */
-    handleHurt() {
-        this.playAnimation(this.IMAGES_HURT);
-        this.isHurt = false; // Setzt den Hurt-Status zurück
-    }
-
-    /**
-     * Verwaltet die aktiven Zustände (Attacke, Laufen, Alert).
-     */
-    handleActiveState() {
-        if (this.isCharacterInAttackRange()) {
-            this.playAnimation(this.IMAGES_ATTACK);
-            this.soundManager.play('endbossvoice', 0.1);
-        } else if (this.isCharacterInWalkRange()) {
-            this.playAnimation(this.IMAGES_WALKING);
-            this.moveTowardsCharacter();
-        } else {
-            this.playAnimation(this.IMAGES_ALERT);
-        }
-    }
-
-
-    /**
-     * Bewegung in Richtung Charakter, wenn in Walk-Reichweite.
-     */
-    moveTowardsCharacter() {
-        if (this.character && this.x > this.character.x) {
-            this.x -= this.speed;
-        }
-    }
-
-    /**
-     * Prüft, ob der Charakter in Angriffsreichweite ist.
-     */
     isCharacterInAttackRange() {
         return this.character && Math.abs(this.x - this.character.x) < 120;
     }
 
-    /**
-     * Prüft, ob der Charakter in Laufreichweite ist.
-     */
     isCharacterInWalkRange() {
         return this.character && Math.abs(this.x - this.character.x) < 500;
     }
 
-    /**
-     * Referenz auf Charakter setzen (von World aus).
-     */
     setCharacter(character) {
         this.character = character;
-    }
-
-    isDeadAnimationOver() {
-        return this.currentImage >= this.IMAGES_DEAD.length - 1;
     }
 }

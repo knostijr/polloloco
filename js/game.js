@@ -5,6 +5,7 @@ let soundManager;
 
 document.addEventListener('DOMContentLoaded', init);
 
+
 function init() {
     soundManager = SoundManager.getInstance();
     canvas = document.getElementById('canvas');
@@ -12,6 +13,7 @@ function init() {
     document.getElementById('mute-button').addEventListener('click', toggleMuteSound);
     document.getElementById('pause-button').addEventListener('click', togglePauseGame);
 }
+
 
 function toggleMuteSound() {
     let soundManager = SoundManager.getInstance();
@@ -24,6 +26,7 @@ function toggleMuteSound() {
         muteButton.src = 'img/unmute.png';
     }
 }
+
 
 function togglePauseGame() {
     // Überprüfe, ob die Welt-Instanz existiert, um Fehler zu vermeiden

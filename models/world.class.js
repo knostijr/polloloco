@@ -22,44 +22,81 @@ class World {
     gameIntervals = [];
     endbossIsAdded = false;
     isPaused = false;
+    lastAnimationUpdate = 0;
+    animationUpdateInterval = 1000 / 10;
+    endboss;
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
         this.keyboard = keyboard;
-        this.draw();
         this.setWorld();
         this.run();
         this.addCollectables();
-        this.collectables = this.level.collectables;
-        this.collectableCoin = this.level.collectableCoin;
-        this.gameOverImage.src = 'img/You won, you lost/gameover.png';
         this.startSpawningChickens();
+        this.setGameInterval(() => {
+            this.updateMovement();
+        }, 1000 / 60);
+        this.setGameInterval(() => {
+            this.updateAnimations();
+        }, 100);
+        this.gameOverImage.src = 'img/You won, you lost/gameover.png';
         this.soundManager.play('backgroundmusic', 0.01);
-
+        this.draw();
     }
 
+    setGameInterval(fn, time) {
+        let id = setInterval(fn, time);
+        this.gameIntervals.push(id);
+    }
 
     run() {
-        let gameLoopInterval = setInterval(() => {
+        this.setGameInterval(() => {
             this.checkCollisions();
             this.checkThrowObjects();
             this.checkEndbossAppearance();
             this.checkEndbossStatus();
         }, 200);
-        this.gameIntervals.push(gameLoopInterval);
     }
 
     pauseGame() {
-        if(!this.isPaused) {
+        if (!this.isPaused) {
             this.isPaused = true;
             this.stopAllGameIntervals();
             this.soundManager.stop('backgroundmusic');
         }
     }
 
+    updateMovement() {
+        this.character.handleMovement();
+        this.character.updateCameraPosition();
+
+        this.level.enemies.forEach(enemy => {
+            if (!(enemy instanceof Endboss)) {
+                enemy.moveLeft();
+            }
+        });
+
+        this.level.clouds.forEach(cloud => cloud.moveLeft());
+
+        let endbossInstance = this.level.enemies.find(e => e instanceof Endboss);
+        if (endbossInstance) {
+            endbossInstance.handleMovement();
+        }
+    }
+
+    updateAnimations() {
+        this.character.animate();
+        this.level.enemies.forEach(enemy => enemy.animate());
+        
+        let endbossInstance = this.level.enemies.find(e => e instanceof Endboss);
+        if (endbossInstance) {
+            endbossInstance.animate();
+        }
+    }
+
     resumeGame() {
-        if(this.isPaused) {
+        if (this.isPaused) {
             this.isPaused = false;
             this.run();
             this.addCollectables();
@@ -94,20 +131,16 @@ class World {
 
     checkEnemyCollisions() {
         this.level.enemies.forEach((enemy, index) => {
-            // Logik für den Endboss
             if (enemy instanceof Endboss) {
                 if (this.character.isColliding(enemy)) {
                     this.character.hit();
                     this.statusBar.setPercentage(this.character.energy);
                 }
-            }
-            // Logik für alle anderen Gegner (Hühner)
-            else {
+            } else {
                 if (this.character.isStompingOn(enemy) && !enemy.isDead) {
                     enemy.isDead = true;
                     this.character.jump();
-                    this.dropBottle(enemy); // Flasche droppen
-
+                    this.dropBottle(enemy);
                     setTimeout(() => {
                         this.level.enemies.splice(index, 1);
                     }, 500);
@@ -163,31 +196,20 @@ class World {
         }
     }
 
-    /**
-     * Prüft, ob der Endboss gespawnt werden soll und fügt ihn hinzu.
-     */
     checkEndbossAppearance() {
         if (this.character.x > this.level.level_end_x - 700 && !this.endbossIsAdded) {
-            // Entferne alle Endboss-Instanzen, die möglicherweise schon existieren
-            this.level.enemies = this.level.enemies.filter(enemy => !(enemy instanceof Endboss));
-
-            let endboss = new Endboss();
-            endboss.setCharacter(this.character);
-            this.level.enemies.push(endboss);
+            this.endboss = new Endboss();
+            this.endboss.setCharacter(this.character);
+            this.level.enemies.push(this.endboss);
             this.endbossIsAdded = true;
         }
     }
 
-    /**
-     * Prüft den Endboss-Status und startet die Gewinnsequenz.
-     */
     checkEndbossStatus() {
         let endboss = this.level.enemies.find(e => e instanceof Endboss);
 
         if (endboss && endboss.isDead() && !this.youWon) {
-            // Setze eine Flagge, damit die Gewinnsequenz nur einmal gestartet wird.
             this.youWon = true;
-            // Verzögere das Stoppen des Spiels, um die Todesanimation zu Ende laufen zu lassen.
             setTimeout(() => {
                 this.showGameOverScreenWithButtons(true);
             }, 500);
@@ -209,19 +231,10 @@ class World {
             document.getElementById('lose-screen').style.display = 'flex';
         }
     }
-    /**
-     * Stoppt alle aktiven Spielintervalle.
-     */
+
     stopAllGameIntervals() {
         this.gameIntervals.forEach(interval => clearInterval(interval));
-        clearInterval(this.character.walkInterval);
-        clearInterval(this.throwBottleInterval);
-        clearInterval(this.character.movementInterval);
-        clearInterval(this.character.animationInterval);
-        this.level.enemies.forEach(enemy => {
-            clearInterval(enemy.animationInterval);
-            clearInterval(enemy.movementInterval);
-        });
+        this.gameIntervals = [];
     }
 
     setWorld() {
@@ -231,14 +244,13 @@ class World {
     addCollectables() {
         let bottleSpawnInterval = setInterval(() => {
             if (!this.endbossIsAdded && this.character.x < this.level.level_end_x - 500) {
-              
                 let newBottle = new CollectableObject(this.character.x + 500 + Math.random() * 500, 250);
                 this.collectables.push(newBottle);
 
                 let newCoin = new CollectableObjectCoin(this.character.x + 500 + Math.random() * 500, 250);
                 this.collectableCoin.push(newCoin);
             }
-        }, 2300); // alle 5 Sekunden ein neues Sammelobjekt spawnen
+        }, 2300);
         this.gameIntervals.push(bottleSpawnInterval);
     }
 
@@ -264,29 +276,31 @@ class World {
 
         if (this.gameIsOver) {
             if (!this.youWon) {
-                // Zeichne den Game Over Screen, wenn das Spiel verloren wurde
                 this.ctx.drawImage(this.gameOverImage, 0, 0, this.canvas.width, this.canvas.height);
             }
             return;
         }
 
-        this.ctx.translate(this.camera_x, 0);
-        this.addObjectsToMap(this.level.backgroundObjects);
+        if (this.isPaused) {
 
-        this.addToMap(this.character);
-        this.addObjectsToMap(this.level.clouds);
-        this.addObjectsToMap(this.level.enemies);
-        this.addObjectsToMap(this.throwableObjects);
-        this.addObjectsToMap(this.collectableCoin);
-        this.addObjectsToMap(this.collectables);
+        } else {
+            this.ctx.translate(this.camera_x, 0);
+            this.addObjectsToMap(this.level.backgroundObjects);
 
-        this.ctx.translate(-this.camera_x, 0);
+            this.addToMap(this.character);
+            this.addObjectsToMap(this.level.clouds);
+            this.addObjectsToMap(this.level.enemies);
+            this.addObjectsToMap(this.throwableObjects);
+            this.addObjectsToMap(this.collectableCoin);
+            this.addObjectsToMap(this.collectables);
 
-        this.addToMap(this.statusBarCoin);
-        this.addToMap(this.statusBarBottle);
-        this.addToMap(this.statusBar);
-        this.addToMap(this.statusBarEndboss);
+            this.ctx.translate(-this.camera_x, 0);
 
+            this.addToMap(this.statusBarCoin);
+            this.addToMap(this.statusBarBottle);
+            this.addToMap(this.statusBar);
+            this.addToMap(this.statusBarEndboss);
+        }
         let self = this;
         requestAnimationFrame(function () {
             self.draw();

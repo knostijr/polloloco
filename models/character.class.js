@@ -91,13 +91,10 @@ class Character extends MoveAbleObject {
 
     world;
     soundManager;
-
     lastMovementTime = new Date().getTime();
-    longIdleTimeout = null;
 
     constructor() {
         super().loadImage('img/2_character_pepe/2_walk/W-21.png');
-        this.world = world;
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_JUMPING);
         this.loadImages(this.IMAGES_STAYING);
@@ -107,49 +104,34 @@ class Character extends MoveAbleObject {
         this.loadImages(this.IMAGES_LONGIDLE);
         this.soundManager = SoundManager.getInstance();
         this.applyGravity();
-        this.animate();
-
     }
 
-    animate() {
-        this.animateMovement();
-        this.animateAnimations();
-    }
-
-    /**
-    * Hauptmethode für alle Bewegungslogiken.
-    * Läuft mit 60 FPS für eine flüssige Steuerung.
-    */
-    animateMovement() {
-        setInterval(() => {
-            this.handleWalking();
-            this.handleJumping();
-            this.updateLastMovementTime();
-            this.updateCameraPosition();
-        }, 1000 / 60);
+    handleMovement() {
+        this.handleWalking();
+        this.handleJumping();
+        this.updateLastMovementTime();
+        this.updateCameraPosition();
     }
 
     /**
-     * Kümmert sich um die Laufbewegung und den Sound.
+     * Diese Methode wird jetzt von der World-Klasse aufgerufen und führt
+     * alle Bewegungslogiken einmal aus.
      */
     handleWalking() {
         if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
             this.moveRight();
             this.otherDirection = false;
             this.soundManager.play('sandwalk_pepe');
-            
-        
         }
         if (this.world.keyboard.LEFT && this.x > 0) {
             this.moveLeft();
             this.otherDirection = true;
             this.soundManager.play('sandwalk_pepe');
-        
         }
     }
 
     /**
-     * Kümmert sich um die Sprungbewegung.
+     * Wird von der World-Klasse aufgerufen und kümmert sich um die Sprungbewegung.
      */
     handleJumping() {
         if (this.world.keyboard.SPACE && !this.isAboveGround()) {
@@ -175,15 +157,13 @@ class Character extends MoveAbleObject {
     }
 
     /**
-    * Hauptmethode für alle Animationslogiken.
-    * Läuft mit 10 FPS für die Animationen.
-    */
-    animateAnimations() {
-        setInterval(() => {
-            let timePassed = new Date().getTime() - this.lastMovementTime;
-            let isLongIdle = timePassed > 5000;
-            this.setAnimation(isLongIdle);
-        }, 100);
+     * Diese Methode wird von der World-Klasse aufgerufen und
+     * kümmert sich um die Animationslogik.
+     */
+    animate() {
+        let timePassed = new Date().getTime() - this.lastMovementTime;
+        let isLongIdle = timePassed > 5000;
+        this.setAnimation(isLongIdle);
     }
 
     /**
@@ -210,7 +190,6 @@ class Character extends MoveAbleObject {
     }
 
     isStompingOn(enemy) {
-
         return this.isColliding(enemy) && this.speedY < 0 && (this.y + this.height - 20) < (enemy.y + enemy.height - 20);
     }
 }

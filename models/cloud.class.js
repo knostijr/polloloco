@@ -2,24 +2,19 @@ class Cloud extends MoveAbleObject {
     y = 20;
     height = 200;
     width = 250;
-
+    speed = 0.5; // Fügen Sie eine Geschwindigkeit für die Bewegung hinzu
 
     constructor() {
-        super().loadImage('img/5_background/layers/4_clouds/1.png', 'img/5_background/layers/4_clouds/2.png');
+        super().loadImage('img/5_background/layers/4_clouds/1.png');
 
-        this.x = Math.random() * 500;
-        this.animate();
+        this.x = 0 + Math.random() * 500;
     }
 
-    animate() {
-        // x koordinate wird regelmäßig um 5 nach links verschoben mit setInterval()
-        this.moveLeft();
-    }
-
+    /**
+     * Diese Methode wird nun von der World-Klasse in einer zentralen Schleife aufgerufen.
+     * Sie bewegt die Wolke einmal nach links.
+     */
     moveLeft() {
-        // x koordinate wird regelmäßig um 5 nach links verschoben mit setInterval()
-        setInterval(() => {
-            this.x -= this.speed;
-        }, 1000 / 60); // t 
+        this.x -= this.speed;
     }
 }
