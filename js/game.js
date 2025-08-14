@@ -9,16 +9,33 @@ function init() {
     soundManager = SoundManager.getInstance();
     canvas = document.getElementById('canvas');
 
-    document.getElementById('mute-button').addEventListener('click', () => {
-        soundManager.toggleMute();
+    document.getElementById('mute-button').addEventListener('click', toggleMuteSound);
+    document.getElementById('pause-button').addEventListener('click', togglePauseGame);
+}
 
-        let muteButton = document.getElementById('mute-button');
-        if (soundManager.isMuted) {
-            muteButton.src = 'img/mute.png';
+function toggleMuteSound() {
+    let soundManager = SoundManager.getInstance();
+    soundManager.toggleMute();
+
+    let muteButton = document.getElementById('mute-button');
+    if (soundManager.isMuted) {
+        muteButton.src = 'img/mute.png';
+    } else {
+        muteButton.src = 'img/unmute.png';
+    }
+}
+
+function togglePauseGame() {
+    // Überprüfe, ob die Welt-Instanz existiert, um Fehler zu vermeiden
+    if (world) {
+        if (world.isPaused) {
+            world.resumeGame();
+            document.getElementById('pause-button').src = 'img/pause.png';
         } else {
-            muteButton.src = 'img/unmute.png';
+            world.pauseGame();
+            document.getElementById('pause-button').src = 'img/play.png';
         }
-    });
+    }
 }
 
 

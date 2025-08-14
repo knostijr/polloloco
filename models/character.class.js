@@ -97,6 +97,7 @@ class Character extends MoveAbleObject {
 
     constructor() {
         super().loadImage('img/2_character_pepe/2_walk/W-21.png');
+        this.world = world;
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_JUMPING);
         this.loadImages(this.IMAGES_STAYING);
@@ -179,8 +180,8 @@ class Character extends MoveAbleObject {
     */
     animateAnimations() {
         setInterval(() => {
-            const timePassed = new Date().getTime() - this.lastMovementTime;
-            const isLongIdle = timePassed > 5000;
+            let timePassed = new Date().getTime() - this.lastMovementTime;
+            let isLongIdle = timePassed > 5000;
             this.setAnimation(isLongIdle);
         }, 100);
     }

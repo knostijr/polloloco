@@ -21,6 +21,7 @@ class World {
     spawningIntervalId;
     gameIntervals = [];
     endbossIsAdded = false;
+    isPaused = false;
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -47,6 +48,24 @@ class World {
             this.checkEndbossStatus();
         }, 200);
         this.gameIntervals.push(gameLoopInterval);
+    }
+
+    pauseGame() {
+        if(!this.isPaused) {
+            this.isPaused = true;
+            this.stopAllGameIntervals();
+            this.soundManager.stop('backgroundmusic');
+        }
+    }
+
+    resumeGame() {
+        if(this.isPaused) {
+            this.isPaused = false;
+            this.run();
+            this.addCollectables();
+            this.startSpawningChickens();
+            this.soundManager.play('backgroundmusic', 0.01);
+        }
     }
 
     checkThrowObjects() {
