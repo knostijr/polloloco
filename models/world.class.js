@@ -42,6 +42,30 @@ class World {
         this.gameIntervals.push(id);
     }
 
+    resetGame() {
+        this.character = new Character();
+        this.level = new Level(level1.enemies, level1.clouds, level1.backgroundObjects);
+        this.setWorld();
+        this.stopAllGameIntervals();
+        this.gameIsOver = false;
+        this.youWon = false;
+        this.endbossIsAdded = false;
+        this.isPaused = false;
+        this.bottles = 5;
+        this.coinsCollected = 0;
+        this.throwableObjects = [];
+        this.collectables = [];
+        this.collectableCoin = [];
+        this.statusBar = new StatusBar();
+        this.statusBarBottle = new StatusBarBottle();
+        this.statusBarCoin = new StatusBarCoin();
+        this.statusBarEndboss = new StatusBarEndboss();
+        this.camera_x = 0;
+        this.soundManager.stopAll();
+        this.soundManager.play('backgroundmusic', 0.01);
+        this.run();
+    }
+
     /**
      * Startet alle Haupt-Game-Loops.
      */

@@ -1,17 +1,45 @@
 let canvas;
 let world;
-let keyboard = new Keyboard();
+let keyboard; // keyboard wird jetzt dynamisch instanziiert
 let soundManager;
 
 document.addEventListener('DOMContentLoaded', init);
 
 
+/**
+ * Initialisiert das Spiel.
+ * Unterscheidet zwischen mobilen Geräten und Desktop-PCs.
+ */
 function init() {
     soundManager = SoundManager.getInstance();
     canvas = document.getElementById('canvas');
 
+    // Bedingte Instanziierung der Keyboard-Klasse
+    if (isMobileDevice()) {
+        keyboard = new MobileKeyboard();
+        // Zeigt das mobile Touch-Keyboard an (falls vorhanden)
+        document.getElementById('touch-controls').style.display = 'flex';
+    } else {
+        keyboard = new Keyboard();
+        // Versteckt das mobile Touch-Keyboard auf Desktops
+        let touchControls = document.getElementById('touch-controls');
+        if (touchControls) {
+            touchControls.style.display = 'none';
+        }
+    }
+
+    // Event-Listener für Mute und Pause
     document.getElementById('mute-button').addEventListener('click', toggleMuteSound);
     document.getElementById('pause-button').addEventListener('click', togglePauseGame);
+}
+
+
+/**
+ * Überprüft, ob das Gerät ein mobiles Gerät ist.
+ * @returns {boolean}
+ */
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 }
 
 
@@ -21,15 +49,14 @@ function toggleMuteSound() {
 
     let muteButton = document.getElementById('mute-button');
     if (soundManager.isMuted) {
-        muteButton.src = 'img/mute.png';
-    } else {
         muteButton.src = 'img/unmute.png';
+    } else {
+        muteButton.src = 'img/mute.png';
     }
 }
 
 
 function togglePauseGame() {
-    // Überprüfe, ob die Welt-Instanz existiert, um Fehler zu vermeiden
     if (world) {
         if (world.isPaused) {
             world.resumeGame();
@@ -49,7 +76,10 @@ function startGame() {
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('canvas').style.display = 'block';
 
-    let canvas = document.getElementById('canvas');
+    // Buttons für Mute und Pause einblenden
+    document.getElementById('mute-button').style.display = 'block';
+    document.getElementById('pause-button').style.display = 'block';
+
     world = new World(canvas, keyboard);
 }
 
@@ -57,17 +87,20 @@ function startGame() {
 function restartGame() {
     let soundManager = SoundManager.getInstance();
     soundManager.play('buttonClick', 1, 2);
+
     // Blende alle End-Screens aus
     document.getElementById('win-screen').style.display = 'none';
     document.getElementById('lose-screen').style.display = 'none';
-    document.getElementById('start-screen').style.display = 'none';
 
     // Zeige das Canvas wieder an
     document.getElementById('canvas').style.display = 'block';
 
-    // Initialisiere das Spiel neu
-    init(); // Stellt sicher, dass alle Variablen zurückgesetzt sind
-    startGame(); // Startet das Spiel
+    // Buttons für Mute und Pause einblenden
+    document.getElementById('mute-button').style.display = 'block';
+    document.getElementById('pause-button').style.display = 'block';
+
+    // Eine komplett neue World-Instanz erstellen, um das Spiel komplett zurückzusetzen
+    world = new World(canvas, keyboard);
 }
 
 
@@ -77,6 +110,7 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
+// Tastatureingaben für die Desktop-Steuerung
 window.addEventListener('keydown', (event) => {
     if (event.keyCode == 39) {
         keyboard.RIGHT = true;
@@ -128,4 +162,3 @@ window.addEventListener('keyup', (event) => {
         keyboard.D = false;
     }
 });
-

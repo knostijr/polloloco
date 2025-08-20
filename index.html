@@ -19,6 +19,7 @@
     <script src="/models/status-bar-endboss.class.js"></script>
     <script src="/models/status-bar-coin.class.js"></script>
     <script src="/models/keyboard.class.js"></script>
+    <script src="/models/mobile.keyboard.class.js"></script>
     <script src="/models/collectable-object-coin.class.js"></script>
     <script src="/models/collectable-object.class.js"></script>
     <script src="/models/level.class.js"></script>
@@ -34,54 +35,47 @@
 </head>
 
 <body>
+    <div id="main-wrapper">
+        <h1 class="main-title">El Pollo Loco</h1>
+        <p>Arrow to move, D to through bottles, Space for jumping</p>
 
-    <h1>El Pollo Loco</h1>
-
-    <div id="start-screen">
-        <img src="img/9_intro_outro_screens/start/startscreen_1.png" alt="Startscreen" id="startscreen-image">
-        <button onclick="startGame()">Start</button>
-    </div>
-    <p style="color: whitesmoke">Arrow to move, D to through bottles, Space for jumping</p>
-
-    <div id="win-screen"
-        style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; justify-content: center; align-items: center; background-color: rgba(0, 0, 0, 0.7); flex-direction: column;">
-        <div style="text-align: center;">
-            <img src="img/You won, you lost/youwin.png" style="max-width: 80vw; max-height: 50vh;">
-            <div style="margin-top: 20px;">
-                <button onclick="restartGame()"
-                    style="padding: 10px 20px; font-size: 1.2em; cursor: pointer; margin: 0 10px;">Spiel neu
-                    starten</button>
-                <button onclick="location.reload()"
-                    style="padding: 10px 20px; font-size: 1.2em; cursor: pointer; margin: 0 10px;">Zurück zum
-                    Startbildschirm</button>
+        <div id="game-container">
+            <div id="start-screen" class="game-view">
+                <img src="img/9_intro_outro_screens/start/startscreen_1.png" alt="Startscreen" id="startscreen-image">
+                <button onclick="startGame()">Start</button>
             </div>
+            <canvas id="canvas" width="720" height="400" class="game-view"></canvas>
+            
+            <div id="win-screen" class="game-overlay">
+                <div class="overlay-content">
+                    <img src="img/You won, you lost/youwin.png">
+                    <div class="overlay-buttons">
+                        <button onclick="restartGame()">Spiel neu starten</button>
+                        <button onclick="location.reload()">Zurück zum Startbildschirm</button>
+                    </div>
+                </div>
+            </div>
+            <div id="lose-screen" class="game-overlay">
+                <div class="overlay-content">
+                    <img src="img/You won, you lost/gameover.png">
+                    <div class="overlay-buttons">
+                        <button onclick="restartGame()">Spiel neu starten</button>
+                        <button onclick="location.reload()">Zurück zum Startbildschirm</button>
+                    </div>
+                </div>
+            </div>
+
+            <img id="mute-button" src="img/mute.png" alt="Mute Button">
+            <img id="pause-button" src="img/pause.png" alt="Pause Button">
+        </div>
+
+        <div id="touch-controls">
+            <button id="left-button">⬅️</button>
+            <button id="right-button">➡️</button>
+            <button id="jump-button">⬆️</button>
+            <button id="throw-button">🎯</button>
         </div>
     </div>
-
-    <div id="lose-screen"
-        style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; justify-content: center; align-items: center; background-color: rgba(0, 0, 0, 0.7); flex-direction: column;">
-        <div style="text-align: center;">
-            <img src="img/You won, you lost/gameover.png" style="max-width: 80vw; max-height: 50vh;">
-            <div style="margin-top: 20px;">
-                <button onclick="restartGame()"
-                    style="padding: 10px 20px; font-size: 1.2em; cursor: pointer; margin: 0 10px;">Spiel neu
-                    starten</button>
-                <button onclick="location.reload()"
-                    style="padding: 10px 20px; font-size: 1.2em; cursor: pointer; margin: 0 10px;">Zurück zum
-                    Startbildschirm</button>
-            </div>
-        </div>
-    </div>
-
-    <img id="mute-button" src="img/mute.png" alt="Mute Button"
-        style=" width: 64px; height: 64px; cursor: pointer;" >
-    
-    <img id="pause-button" src="img/pause.png" alt="Pause Button"
-        style="width: 64px; height: 64px; cursor: pointer;">
-    
-    <canvas id="canvas" width="720" height="400" style="display: none">
-    </canvas>
-
 </body>
 
 </html>
